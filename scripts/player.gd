@@ -2,9 +2,10 @@ extends CharacterBody3D
 
 ## ===== 移动参数 =====
 @export var walk_speed: float = 5.0
-@export var jump_velocity: float = 4.5
-@export var gravity: float = 15.0
+@export var jump_velocity: float = 6.0
+@export var gravity: float = 22.0
 @export var mouse_sensitivity: float = 0.002
+@export var recoil_multiplier: float = 3.0
 @export var hp_bar_max_width: float = 0.0
 ## ===== 侧瞄过渡速度 =====
 @export var side_transition_speed: float = 10.0
@@ -128,6 +129,7 @@ var sync_timer: float = 0.0
 var sync_interval: float = 0.05  # 20 Hz
 var last_sent_position: Vector3 = Vector3.ZERO
 var last_sent_rotation: float = 0.0
+var last_sent_pitch: float = 0.0
 
 
 # =========================================================================
@@ -168,12 +170,16 @@ func _ready() -> void:
 	camera_base_position.y = normal_camera_height
 
 	# ===== 修复血量条宽度 =====
-	hp_bar_max_width = hprect.size.x
-	if hp_bar_max_width == 0:
-		hp_bar_max_width = 280
+	hp_bar_max_width = 280.0
 	# 固定锚点避免被父容器影响
 	hprect.anchor_left = 0.0
 	hprect.anchor_right = 0.0
+	if hplabel:
+		hplabel.clip_text = false
+
+	if not is_local_player:
+		if has_node("CanvasLayer"):
+			$CanvasLayer.visible = false
 
 	print("[玩家 ", player_id, "] 准备就绪，血量: ", current_health)
 	_update_ui()  # 初始化 UI
@@ -248,7 +254,7 @@ func _update_ui() -> void:
 		hplabel.text = str(display_health) + " / " + str(max_health)
 		# 使用存储的最大宽度
 		hprect.size.x = display_health / max_health * hp_bar_max_width
-		
+		print("[UI 调试] hprect.size.x 变化为: ", hprect.size.x)
 
 	if bulletlabel:
 		if reserve_ammo < 0:
@@ -311,10 +317,12 @@ func _physics_process(delta: float) -> void:
 			sync_timer = 0.0
 			var pos = global_position
 			var rot = rotation.y
-			if pos.distance_to(last_sent_position) > 0.1 or abs(rot - last_sent_rotation) > 0.01:
+			var pitch = camera_pitch
+			if pos.distance_to(last_sent_position) > 0.1 or abs(rot - last_sent_rotation) > 0.01 or abs(pitch - last_sent_pitch) > 0.01:
 				last_sent_position = pos
 				last_sent_rotation = rot
-				rpc("update_transform", pos, rot)
+				last_sent_pitch = pitch
+				rpc("update_transform", pos, rot, pitch)
 
 
 func handle_movement(delta: float) -> void:
@@ -364,11 +372,11 @@ func handle_movement(delta: float) -> void:
 	current_speed = target_speed
 
 	if direction:
-		velocity.x = move_toward(velocity.x, direction.x * target_speed, target_speed * delta * 10)
-		velocity.z = move_toward(velocity.z, direction.z * target_speed, target_speed * delta * 10)
+		velocity.x = move_toward(velocity.x, direction.x * target_speed, target_speed * delta * 20.0)
+		velocity.z = move_toward(velocity.z, direction.z * target_speed, target_speed * delta * 20.0)
 	else:
-		velocity.x = move_toward(velocity.x, 0.0, target_speed * delta * 10)
-		velocity.z = move_toward(velocity.z, 0.0, target_speed * delta * 10)
+		velocity.x = move_toward(velocity.x, 0.0, target_speed * delta * 20.0)
+		velocity.z = move_toward(velocity.z, 0.0, target_speed * delta * 20.0)
 
 	if Input.is_action_just_pressed("jump") and is_on_floor() and not is_sliding:
 		velocity.y = jump_velocity
@@ -435,12 +443,16 @@ func update_aiming(delta: float) -> void:
 		target_fov = weapon.normal_fov
 		target_position_offset = weapon.normal_position_offset
 		target_rotation_offset = weapon.normal_rotation_offset
+		# Reset side aim state when aiming is released
+		is_side_aiming = false
+		target_side_position = Vector3.ZERO
+		target_side_rotation = Vector3.ZERO
 
 
 func update_side_aim(delta: float) -> void:
 	var speed: float = side_transition_speed
-	current_side_position = current_side_position.lerp(target_side_position, speed * delta)
-	current_side_rotation = current_side_rotation.lerp(target_side_rotation, speed * delta)
+	current_side_position = current_side_position.lerp(target_side_position, 1.0 - exp(-speed * delta))
+	current_side_rotation = current_side_rotation.lerp(target_side_rotation, 1.0 - exp(-speed * delta))
 
 
 func update_lean(delta: float) -> void:
@@ -510,18 +522,25 @@ func _input(event: InputEvent) -> void:
 # =========================================================================
 #  手动同步 RPC
 # =========================================================================
-@rpc("any_peer", "call_remote", "unreliable")
-func update_transform(new_pos: Vector3, new_rot_y: float) -> void:
+@rpc("authority", "call_remote", "unreliable")
+func update_transform(new_pos: Vector3, new_rot_y: float, new_pitch: float) -> void:
+	if multiplayer.get_remote_sender_id() != get_multiplayer_authority():
+		return
 	global_position = new_pos
 	rotation.y = new_rot_y
 	player_yaw = new_rot_y
+	camera_pitch = new_pitch
+	if has_node("Camera3D"):
+		$Camera3D.rotation.x = new_pitch
 
 
 # =========================================================================
 #  血量同步 RPC
 # =========================================================================
-@rpc("any_peer", "call_remote", "reliable")
+@rpc("authority", "call_remote", "reliable")
 func sync_health(new_health: float) -> void:
+	if multiplayer.get_remote_sender_id() != get_multiplayer_authority():
+		return
 	if is_local_player:
 		return
 	current_health = new_health
@@ -533,6 +552,8 @@ func sync_health(new_health: float) -> void:
 # =========================================================================
 @rpc("any_peer", "call_local")
 func shoot() -> void:
+	if multiplayer.get_remote_sender_id() != 0 and multiplayer.get_remote_sender_id() != get_multiplayer_authority():
+		return
 	if is_dead or current_ammo <= 0 or is_reloading or not can_shoot:
 		return
 
@@ -557,6 +578,7 @@ func shoot() -> void:
 
 		var query := PhysicsRayQueryParameters3D.create(origin, end)
 		query.collision_mask = 1
+		query.exclude = [self.get_rid()]
 		var result: Dictionary = space_state.intersect_ray(query)
 
 		if result:
@@ -564,8 +586,8 @@ func shoot() -> void:
 			if hit.is_in_group("players") and hit != self:
 				hit.take_damage.rpc_id(hit.get_multiplayer_authority(), weapon.damage, player_id)
 
-		var recoil_v: float = randf_range(weapon.recoil_vertical * 0.5, weapon.recoil_vertical)
-		var recoil_h: float = randf_range(-weapon.recoil_horizontal, weapon.recoil_horizontal)
+		var recoil_v: float = randf_range(weapon.recoil_vertical * 0.5, weapon.recoil_vertical) * recoil_multiplier
+		var recoil_h: float = randf_range(-weapon.recoil_horizontal, weapon.recoil_horizontal) * recoil_multiplier
 		if is_aiming:
 			recoil_v *= 0.6
 			recoil_h *= 0.6
@@ -605,23 +627,29 @@ func start_reload() -> void:
 	reload_timer.start()
 
 
-func _on_reload_timeout() -> void:
+@rpc("any_peer", "call_local")
+func finish_reload() -> void:
 	if is_dead or not is_reloading:
 		return
 
-	var weapon: Dictionary = get_current_weapon()
-	var needed: int = weapon.max_ammo - current_ammo
-	if reserve_ammo < 0:
-		current_ammo = weapon.max_ammo
-	else:
-		var to_add: int = min(needed, reserve_ammo)
-		current_ammo += to_add
-		reserve_ammo -= to_add
+	if is_multiplayer_authority():
+		var weapon: Dictionary = get_current_weapon()
+		var needed: int = weapon.max_ammo - current_ammo
+		if reserve_ammo < 0:
+			current_ammo = weapon.max_ammo
+		else:
+			var to_add: int = min(needed, reserve_ammo)
+			current_ammo += to_add
+			reserve_ammo -= to_add
 
 	is_reloading = false
 	is_playing_reload = false
 	reload_timer = null
 	update_movement_animation()
+
+
+func _on_reload_timeout() -> void:
+	finish_reload.rpc()
 
 
 # =========================================================================
@@ -676,12 +704,14 @@ func die() -> void:
 
 func _respawn() -> void:
 	await get_tree().create_timer(2.0).timeout
-	if not is_dead:
+	if not is_inside_tree() or not is_dead:
 		return
 
 	current_health = max_health
 	is_dead = false
 	can_shoot = true
+	is_reloading = false
+	is_playing_reload = false
 
 	var spawn_nodes = get_tree().get_nodes_in_group("spawn_points")
 	if spawn_nodes.size() > 0:
@@ -699,7 +729,7 @@ func _respawn() -> void:
 	print("[玩家 ", player_id, "] 重生，血量: ", current_health)
 
 	if is_local_player:
-		rpc("update_transform", global_position, rotation.y)
+		rpc("update_transform", global_position, rotation.y, camera_pitch)
 
 	# 广播新血量
 	rpc("sync_health", current_health)
