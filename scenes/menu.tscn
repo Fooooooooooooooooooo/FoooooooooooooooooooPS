@@ -1,0 +1,63 @@
+[gd_scene format=3 uid="uid://dnksqhndhq35r"]
+
+[ext_resource type="Script" uid="uid://br6yt5gx613yx" path="res://scripts/menu.gd" id="1_yqeox"]
+[ext_resource type="FontFile" uid="uid://2drme5iecdo2" path="res://assets/Saira-VariableFont_wdth,wght.ttf" id="2_vjb58"]
+
+[sub_resource type="FontVariation" id="FontVariation_qlg0r"]
+base_font = ExtResource("2_vjb58")
+variation_opentype = {
+2003072104: 125,
+2003265652: 525
+}
+variation_embolden = 1.05
+
+[sub_resource type="FontVariation" id="FontVariation_con2f"]
+base_font = ExtResource("2_vjb58")
+variation_opentype = {
+2003072104: 125,
+2003265652: 525
+}
+variation_embolden = 1.05
+
+[sub_resource type="FontVariation" id="FontVariation_tuyoq"]
+base_font = ExtResource("2_vjb58")
+variation_opentype = {
+2003072104: 125,
+2003265652: 525
+}
+variation_embolden = 1.05
+
+[node name="Menu" type="Control" unique_id=1842126607]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_yqeox")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=547386751]
+layout_mode = 0
+offset_right = 140.0
+offset_bottom = 140.0
+
+[node name="JoinButton" type="Button" parent="VBoxContainer" unique_id=1687573047]
+layout_mode = 2
+theme_override_fonts/font = SubResource("FontVariation_qlg0r")
+text = "Join"
+
+[node name="StatusLabel" type="Label" parent="VBoxContainer" unique_id=477627235]
+layout_mode = 2
+text = "输入IP地址"
+
+[node name="IPInput" type="LineEdit" parent="VBoxContainer" unique_id=1514352930]
+layout_mode = 2
+theme_override_fonts/font = SubResource("FontVariation_con2f")
+
+[node name="HostButton" type="Button" parent="VBoxContainer" unique_id=1814199637]
+layout_mode = 2
+theme_override_fonts/font = SubResource("FontVariation_tuyoq")
+text = "Host"
+
+[connection signal="pressed" from="VBoxContainer/JoinButton" to="." method="_on_join_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HostButton" to="." method="_on_host_button_pressed"]

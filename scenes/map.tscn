@@ -1,0 +1,219 @@
+[gd_scene format=3 uid="uid://4ekcbxxj532e"]
+
+[ext_resource type="Script" uid="uid://d4j48kh8mp18r" path="res://scripts/map.gd" id="1_gldc4"]
+[ext_resource type="PackedScene" uid="uid://baarocywpvwdd" path="res://assets/map.glb" id="1_ivhtw"]
+[ext_resource type="Texture2D" uid="uid://b2y4kxxsaf48q" path="res://assets/kenney_prototype_textures/dark/texture_09.png" id="2_ak1oh"]
+[ext_resource type="Texture2D" uid="uid://bpoy7c7ksg0yb" path="res://assets/kenney_prototype_textures/orange/texture_09.png" id="3_t2c11"]
+[ext_resource type="Texture2D" uid="uid://bdvkk3k16jm2m" path="res://assets/kenney_prototype_textures/orange/texture_07.png" id="4_vkb61"]
+[ext_resource type="Texture2D" uid="uid://cmg36n3yb7k7u" path="res://assets/Skyboxes/skybox-alien.png" id="6_2lpho"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7vndy"]
+albedo_texture = ExtResource("2_ak1oh")
+uv1_triplanar = true
+uv1_world_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5skux"]
+albedo_texture = ExtResource("3_t2c11")
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_87bwd"]
+albedo_texture = ExtResource("4_vkb61")
+uv1_offset = Vector3(0, 0, 1)
+uv1_triplanar = true
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_abi3o"]
+panorama = ExtResource("6_2lpho")
+
+[sub_resource type="Sky" id="Sky_ifow5"]
+sky_material = SubResource("PanoramaSkyMaterial_abi3o")
+
+[sub_resource type="Environment" id="Environment_wvhbo"]
+background_mode = 2
+sky = SubResource("Sky_ifow5")
+
+[node name="map" unique_id=1321610786 instance=ExtResource("1_ivhtw")]
+script = ExtResource("1_gldc4")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." index="0" unique_id=2082000969]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Plane" parent="." index="1" unique_id=32151023]
+surface_material_override/0 = SubResource("StandardMaterial3D_7vndy")
+
+[node name="Walls " parent="." index="2" unique_id=1784214088]
+surface_material_override/0 = SubResource("StandardMaterial3D_7vndy")
+
+[node name="Cargo" parent="." index="3" unique_id=297555417]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_001" parent="." index="4" unique_id=686143235]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_002" parent="." index="5" unique_id=768893554]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_003" parent="." index="6" unique_id=1374945879]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_004" parent="." index="7" unique_id=851153659]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_005" parent="." index="8" unique_id=1362026039]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_006" parent="." index="9" unique_id=1612422457]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_007" parent="." index="10" unique_id=650663753]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_008" parent="." index="11" unique_id=1019557552]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_009" parent="." index="12" unique_id=148073284]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_010" parent="." index="13" unique_id=238065808]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_011" parent="." index="14" unique_id=1840019884]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_012" parent="." index="15" unique_id=946576824]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_013" parent="." index="16" unique_id=413711809]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo_014" parent="." index="17" unique_id=787908845]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo both open" parent="." index="18" unique_id=1092494057]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="Cargo both open_001" parent="." index="19" unique_id=1877088658]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="cargo side open" parent="." index="20" unique_id=1914717788]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="cargo side open_001" parent="." index="21" unique_id=1062801880]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="cargo side open_002" parent="." index="22" unique_id=426014986]
+surface_material_override/0 = SubResource("StandardMaterial3D_5skux")
+
+[node name="barrel" parent="." index="23" unique_id=1215265764]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_001" parent="." index="24" unique_id=1188511697]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_002" parent="." index="25" unique_id=1207045787]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_003" parent="." index="26" unique_id=811530702]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_004" parent="." index="27" unique_id=1821306660]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_005" parent="." index="28" unique_id=763751668]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_006" parent="." index="29" unique_id=1500244810]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_007" parent="." index="30" unique_id=1940085653]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_008" parent="." index="31" unique_id=1658575165]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_009" parent="." index="32" unique_id=852649120]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_010" parent="." index="33" unique_id=1119395809]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_011" parent="." index="34" unique_id=1873348386]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_012" parent="." index="35" unique_id=1189345734]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_013" parent="." index="36" unique_id=1133611651]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_014" parent="." index="37" unique_id=300284972]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_015" parent="." index="38" unique_id=1515349880]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_016" parent="." index="39" unique_id=63994402]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_017" parent="." index="40" unique_id=626091811]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_018" parent="." index="41" unique_id=1532208121]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_019" parent="." index="42" unique_id=93854339]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_020" parent="." index="43" unique_id=1244753181]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_021" parent="." index="44" unique_id=819894225]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_022" parent="." index="45" unique_id=283147342]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_023" parent="." index="46" unique_id=163451431]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_024" parent="." index="47" unique_id=1036114789]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_025" parent="." index="48" unique_id=752216642]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_026" parent="." index="49" unique_id=151629169]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_027" parent="." index="50" unique_id=484142288]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_028" parent="." index="51" unique_id=330281413]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_029" parent="." index="52" unique_id=948443786]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_030" parent="." index="53" unique_id=551614299]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_031" parent="." index="54" unique_id=1352858069]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_032" parent="." index="55" unique_id=2068239678]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_033" parent="." index="56" unique_id=1350279111]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="barrel_034" parent="." index="57" unique_id=576341958]
+surface_material_override/0 = SubResource("StandardMaterial3D_87bwd")
+
+[node name="Players" type="Node" parent="." index="58" unique_id=706064152]
+
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="." index="59" unique_id=617567259]
+_spawnable_scenes = PackedStringArray("uid://b2q7bxpdcveeg")
+spawn_path = NodePath("../Players")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." index="60" unique_id=1130419785]
+environment = SubResource("Environment_wvhbo")
