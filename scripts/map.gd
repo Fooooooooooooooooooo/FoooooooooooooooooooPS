@@ -19,6 +19,9 @@ func _ready() -> void:
 	else:
 		var children = spawn_points_parent.get_children()
 		print("✅ SpawnPoints 有 ", children.size(), " 个子节点")
+		# 动态把生成点子节点加入到 "spawn_points" 分组，让 Player 的重生获取能工作
+		for child in children:
+			child.add_to_group("spawn_points")
 
 	if NetworkManager.is_server:
 		print("🟢 我是主机，生成本地玩家")
