@@ -1,5 +1,8 @@
 extends CharacterBody3D
 
+# ===== 射击模式枚举 =====
+enum FireMode { SEMI_AUTO, BURST, FULL_AUTO }
+
 ## ===== 移动参数 =====
 @export var walk_speed: float = 5.0
 @export var jump_velocity: float = 6.0
@@ -40,11 +43,137 @@ var weapons: Array[Dictionary] = [
 		"recoil_recovery_speed": 8.0,
 		"side_aim_position_offset": Vector3(0, 0, 0),
 		"side_aim_rotation_offset": Vector3(0, 0, 1),
-		"aim_jitter_multiplier": 0.5
+		"aim_jitter_multiplier": 0.5,
+		"ads_time": 0.15,
+		"recoil_recovery_delay": 0.05,
+		"fire_mode": FireMode.FULL_AUTO,
+		"burst_count": 3,
+		"recoil_pattern": [
+			Vector2(0.0, 0.3),   # 第1发
+			Vector2(0.1, 0.5),   # 第2发
+			Vector2(0.2, 0.8),   # 第3发
+			Vector2(-0.1, 1.0),  # 第4发
+			Vector2(0.3, 1.3),   # 第5发
+			Vector2(-0.2, 1.5),  # 第6发
+			Vector2(0.1, 1.6),   # 第7发
+			Vector2(0.25, 1.7),  # 第8发
+			Vector2(-0.15, 1.8), # 第9发
+			Vector2(0.35, 1.9),  # 第10发
+			Vector2(0.0, 2.0),   # 第11发
+			Vector2(-0.2, 2.1),  # 第12发
+			Vector2(0.15, 2.1),  # 第13发
+			Vector2(0.3, 2.15),  # 第14发
+			Vector2(-0.1, 2.2),  # 第15发
+			Vector2(0.2, 2.2),   # 第16发
+			Vector2(-0.25, 2.2), # 第17发
+			Vector2(0.1, 2.2),   # 第18发
+			Vector2(0.35, 2.2),  # 第19发
+			Vector2(-0.15, 2.2), # 第20发
+			Vector2(0.0, 2.2),   # 第21发
+			Vector2(-0.2, 2.2),  # 第22发
+			Vector2(0.15, 2.2),  # 第23发
+			Vector2(0.3, 2.2),   # 第24发
+			Vector2(-0.1, 2.2),  # 第25发
+			Vector2(0.2, 2.2),   # 第26发
+			Vector2(-0.25, 2.2), # 第27发
+			Vector2(0.1, 2.2),   # 第28发
+			Vector2(0.35, 2.2),  # 第29发
+			Vector2(-0.15, 2.2)  # 第30发
+		]
+	},
+	{
+		"name": "Rifle",
+		"max_ammo": 30,
+		"max_reserve_ammo": -1,
+		"reload_time": 2.5,
+		"shoot_cooldown": 0.15,
+		"damage": 35.0,
+		"shoot_range": 150.0,
+		"recoil_vertical": 0.08,
+		"recoil_horizontal": 0.03,
+		"spread": 0.02,
+		"aim_spread_multiplier": 0.4,
+		"aim_fov": 55.0,
+		"normal_fov": 75,
+		"aim_sensitivity_multiplier": 0.4,
+		"aim_speed_multiplier": 0.5,
+		"aim_position_offset": Vector3(-0.005, -0.16, -0.2),
+		"aim_rotation_offset": Vector3(0.0, 0.0, 0.0),
+		"normal_position_offset": Vector3(0.323, -0.297, -0.488),
+		"normal_rotation_offset": Vector3(0.0, 0.0, 0.0),
+		"transition_speed": 10.0,
+		"recoil_recovery_speed": 6.0,
+		"side_aim_position_offset": Vector3(0, 0, 0),
+		"side_aim_rotation_offset": Vector3(0, 0, 1),
+		"aim_jitter_multiplier": 0.4,
+		"ads_time": 0.2,
+		"recoil_recovery_delay": 0.05,
+		"fire_mode": FireMode.SEMI_AUTO,
+		"burst_count": 3,
+		"recoil_pattern": [
+			Vector2(0.0, 0.5),   # 第1发
+			Vector2(0.15, 0.8),  # 第2发
+			Vector2(0.25, 1.2),  # 第3发
+			Vector2(-0.1, 1.5),  # 第4发
+			Vector2(-0.2, 1.8),  # 第5发
+			Vector2(0.1, 2.0),   # 第6发
+			Vector2(0.2, 2.2),   # 第7发
+			Vector2(0.3, 2.4),   # 第8发
+			Vector2(-0.05, 2.5), # 第9发
+			Vector2(-0.15, 2.6), # 第10发
+			Vector2(0.05, 2.7),  # 第11发
+			Vector2(0.15, 2.8),  # 第12发
+			Vector2(0.25, 2.9),  # 第13发
+			Vector2(-0.1, 3.0),  # 第14发
+			Vector2(-0.2, 3.1),  # 第15发
+			Vector2(0.1, 3.2),   # 第16发
+			Vector2(0.2, 3.2),   # 第17发
+			Vector2(0.3, 3.2),   # 第18发
+			Vector2(-0.05, 3.2), # 第19发
+			Vector2(-0.15, 3.2), # 第20发
+			Vector2(0.05, 3.2),  # 第21发
+			Vector2(0.15, 3.2),  # 第22发
+			Vector2(0.25, 3.2),  # 第23发
+			Vector2(-0.1, 3.2),  # 第24发
+			Vector2(-0.2, 3.2),  # 第25发
+			Vector2(0.1, 3.2),   # 第26发
+			Vector2(0.2, 3.2),   # 第27发
+			Vector2(0.3, 3.2),   # 第28发
+			Vector2(-0.05, 3.2), # 第29发
+			Vector2(-0.15, 3.2)  # 第30发
+		]
 	}
 ]
 
 var current_weapon_index: int = 0
+
+## ===== 新增变量 (枪械与手感系统) =====
+var is_crouching: bool = false
+var is_sprinting: bool = false
+var jump_penalty_timer: float = 0.0
+
+var shot_count: int = 0
+var recoil_peak: float = 0.0
+var recovery_delay_timer: float = 0.0
+
+var breath_time: float = 0.0
+var breath_offset: Vector3 = Vector3.ZERO
+
+var ads_progress: float = 0.0
+var is_ads_transitioning: bool = false
+
+var is_switching: bool = false
+var switch_progress: float = 0.0
+var switch_duration: float = 0.3
+
+var burst_counter: int = 0
+var burst_timer: float = 0.0
+
+var hit_marker_timer: float = 0.0
+var damage_flash_timer: float = 0.0
+
+var hit_marker_ui = null
+var damage_flash_ui = null
 
 ## ===== 节点引用 =====
 @onready var camera: Camera3D = $Camera3D
@@ -180,6 +309,9 @@ func _ready() -> void:
 	if not is_local_player:
 		if has_node("CanvasLayer"):
 			$CanvasLayer.visible = false
+	else:
+		setup_aim_line()
+		setup_feedback_ui()
 
 	print("[玩家 ", player_id, "] 准备就绪，血量: ", current_health)
 	_update_ui()  # 初始化 UI
@@ -267,6 +399,14 @@ func _update_ui() -> void:
 #  物理更新
 # =========================================================================
 func _physics_process(delta: float) -> void:
+	# 物理帧计时器衰减
+	if jump_penalty_timer > 0:
+		jump_penalty_timer -= delta
+	if hit_marker_timer > 0:
+		hit_marker_timer -= delta
+	if damage_flash_timer > 0:
+		damage_flash_timer -= delta
+
 	# 权威端钳制血量
 	if is_multiplayer_authority():
 		current_health = clamp(current_health, 0, max_health)
@@ -275,18 +415,35 @@ func _physics_process(delta: float) -> void:
 
 	if is_local_player:
 		if not is_dead:
+			# 实时更新蹲下和冲刺状态变量
+			is_sprinting = Input.is_key_pressed(KEY_SHIFT) and velocity.length() > 0.5 and is_on_floor()
+			is_crouching = (Input.is_key_pressed(KEY_CTRL) or is_sliding) and is_on_floor()
 			handle_movement(delta)
 		else:
+			is_sprinting = false
+			is_crouching = false
 			velocity = Vector3.ZERO
 			move_and_slide()
 	else:
 		player_yaw = rotation.y
 		camera_pitch = camera.rotation.x
 
-	update_aiming(delta)
+	# 呼吸晃动更新
+	update_breath(delta)
+
+	# 瞄准过渡系统 (ADS)
+	update_ads(delta)
+
 	update_side_aim(delta)
 	update_lean(delta)
 	update_camera_height(delta)
+
+	# 应用相机位置（整合了侧瞄、探头、高度与呼吸晃动）
+	apply_camera_position()
+
+	# 瞄准线更新
+	if is_local_player:
+		update_aim_line(delta)
 
 	if is_local_player and not is_dead:
 		if slide_pending and is_on_floor() and not is_sliding and slide_cooldown <= 0:
@@ -302,6 +459,11 @@ func _physics_process(delta: float) -> void:
 			start_reload.rpc()
 		if current_ammo == 0 and (reserve_ammo > 0 or reserve_ammo < 0) and not is_reloading:
 			start_reload.rpc()
+
+	# 后坐力延迟恢复
+	update_recoil_recovery(delta)
+	# 武器切换更新
+	update_weapon_switch(delta)
 
 	apply_view(delta)
 	update_weapon_offset(delta)
@@ -333,6 +495,7 @@ func handle_movement(delta: float) -> void:
 		if Input.is_action_just_pressed("jump") and is_on_floor():
 			end_slide()
 			velocity.y = jump_velocity
+			_on_jump()
 			move_and_slide()
 			return
 
@@ -380,6 +543,7 @@ func handle_movement(delta: float) -> void:
 
 	if Input.is_action_just_pressed("jump") and is_on_floor() and not is_sliding:
 		velocity.y = jump_velocity
+		_on_jump()
 
 	if not is_on_floor():
 		velocity.y -= gravity * delta
@@ -518,6 +682,17 @@ func _input(event: InputEvent) -> void:
 		else:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
+	# 切换射击模式快捷键
+	if event is InputEventKey and event.pressed and event.keycode == KEY_B:
+		toggle_fire_mode()
+
+	# 切换武器快捷键
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_1:
+			start_weapon_switch(0)
+		elif event.keycode == KEY_2:
+			start_weapon_switch(1)
+
 
 # =========================================================================
 #  手动同步 RPC
@@ -567,9 +742,8 @@ func shoot() -> void:
 		var cam_global: Transform3D = camera.global_transform
 		var origin: Vector3 = cam_global.origin
 		
-		var spread_angle: float = weapon.spread
-		if is_aiming:
-			spread_angle *= weapon.aim_spread_multiplier
+		# 使用全新的散布算法
+		var spread_angle: float = calculate_spread()
 		var rand_h: float = randf_range(-spread_angle, spread_angle)
 		var rand_v: float = randf_range(-spread_angle, spread_angle)
 		var local_dir: Vector3 = Vector3(rand_h, rand_v, -1.0).normalized()
@@ -581,19 +755,23 @@ func shoot() -> void:
 		query.exclude = [self.get_rid()]
 		var result: Dictionary = space_state.intersect_ray(query)
 
+		# 子弹拖尾与击中效果 (authority/local)
 		if result:
 			var hit: Object = result.collider
+			create_bullet_trail(origin, result.position)
+			create_bullet_impact(result.position, result.normal)
 			if hit.is_in_group("players") and hit != self:
 				hit.take_damage.rpc_id(hit.get_multiplayer_authority(), weapon.damage, player_id)
+				if is_local_player:
+					show_hit_marker()
+		else:
+			create_bullet_trail(origin, end)
 
-		var recoil_v: float = randf_range(weapon.recoil_vertical * 0.5, weapon.recoil_vertical) * recoil_multiplier
-		var recoil_h: float = randf_range(-weapon.recoil_horizontal, weapon.recoil_horizontal) * recoil_multiplier
-		if is_aiming:
-			recoil_v *= 0.6
-			recoil_h *= 0.6
-		recoil_pitch_offset -= recoil_v
-		recoil_yaw_offset += recoil_h
+		# 应用后坐力模式
+		apply_recoil()
 
+	# 播放音效与动画
+	play_shot_sound()
 	play_weapon_animation("shoot")
 
 	if is_multiplayer_authority() and current_ammo == 0 and (reserve_ammo > 0 or reserve_ammo < 0) and not is_reloading:
@@ -668,6 +846,10 @@ func take_damage(amount: float, attacker_id: int) -> void:
 		rpc("sync_health", current_health)
 
 	_update_ui()  # 自己立即更新 UI
+
+	# 命中反馈：受伤时屏幕闪烁
+	if is_local_player:
+		show_damage_flash(clamp(amount / 20.0, 0.2, 1.0))
 
 	if current_health <= 0 and not is_dead:
 		die()
@@ -787,8 +969,8 @@ func _process(delta: float) -> void:
 	_update_ui()
 
 	# 射击输入
-	if not is_dead and Input.is_action_pressed("shoot") and not is_reloading and current_ammo > 0 and can_shoot:
-		shoot.rpc()
+	if not is_dead and not is_reloading and current_ammo > 0:
+		process_shoot_input()
 
 	# 侧瞄和探头
 	if not is_dead:
@@ -813,11 +995,456 @@ func _process(delta: float) -> void:
 
 
 func switch_weapon(index: int) -> void:
-	if is_dead or index == current_weapon_index or index < 0 or index >= weapons.size():
+	start_weapon_switch(index)
+
+# ===== 2️⃣ 移动精度惩罚计算 =====
+func get_accuracy_multiplier() -> float:
+	var mult = 1.0
+	var current_speed = velocity.length()
+
+	# 移动惩罚
+	if current_speed > 0.1:
+		var speed_factor = clamp(current_speed / walk_speed, 0.0, 1.0)
+		mult *= lerp(1.0, 0.4, speed_factor)
+
+	# 冲刺惩罚
+	if is_sprinting:
+		mult *= 0.3
+
+	# 滑铲惩罚
+	if is_sliding:
+		mult *= 0.2
+
+	# 蹲下增益
+	if is_crouching:
+		mult *= 1.3
+
+	# 跳跃惩罚（带衰减）
+	if jump_penalty_timer > 0:
+		mult *= lerp(0.5, 1.0, jump_penalty_timer / 0.5)
+
+	# 空中惩罚
+	if not is_on_floor():
+		mult *= 0.3
+
+	return clamp(mult, 0.1, 1.5)
+
+func calculate_spread() -> float:
+	var weapon = get_current_weapon()
+	var base_spread = weapon.spread
+	var accuracy_mult = get_accuracy_multiplier()
+	var shot_spread = shot_count * 0.0005
+
+	if is_aiming:
+		base_spread *= weapon.aim_spread_multiplier
+
+	return base_spread * (1.0 / accuracy_mult) + shot_spread
+
+func _on_jump() -> void:
+	jump_penalty_timer = 0.5
+
+# ===== 3️⃣ 呼吸晃动计算 =====
+func update_breath(delta: float) -> void:
+	breath_time += delta
+
+	var intensity = 1.0
+	var is_moving = velocity.length() > 0.5 and is_on_floor()
+
+	if is_moving:
+		intensity = 2.0
+	if is_aiming:
+		intensity *= 0.3
+	if is_crouching:
+		intensity *= 0.5
+
+	breath_offset = Vector3(
+		sin(breath_time * 0.3) * 0.005 * intensity,
+		sin(breath_time * 0.25) * 0.008 * intensity * 0.7,
+		0
+	)
+
+	# 急停惯性
+	if velocity.length() < 0.1 and not is_moving:
+		breath_offset.x *= exp(-delta * 3.0)
+
+# ===== 应用到相机 =====
+func apply_camera_position() -> void:
+	var final_pos = camera_base_position
+	if is_local_player:
+		final_pos.x += current_lean + breath_offset.x
+		final_pos.y += breath_offset.y
+		final_pos.z += breath_offset.z
+	camera.position = final_pos
+
+# ===== 4️⃣ 开镜过渡计算 =====
+func update_ads(delta: float) -> void:
+	var aiming = false
+	if is_local_player:
+		aiming = Input.is_action_pressed("aim") and not is_dead
+	else:
+		aiming = is_aiming
+
+	var weapon = get_current_weapon()
+	var ads_speed = 1.0 / weapon.get("ads_time", 0.15)
+
+	if aiming and not is_aiming:
+		is_ads_transitioning = true
+	elif not aiming and is_aiming:
+		is_ads_transitioning = true
+
+	if is_ads_transitioning:
+		if aiming:
+			ads_progress += delta * ads_speed
+			if ads_progress >= 1.0:
+				ads_progress = 1.0
+				is_ads_transitioning = false
+				is_aiming = true
+		else:
+			ads_progress -= delta * ads_speed
+			if ads_progress <= 0.0:
+				ads_progress = 0.0
+				is_ads_transitioning = false
+				is_aiming = false
+
+		# 插值参数
+		var start_fov = weapon.normal_fov
+		var end_fov = weapon.aim_fov
+		current_fov = lerp(start_fov, end_fov, ads_progress)
+
+		var start_pos = weapon.normal_position_offset
+		var end_pos = weapon.aim_position_offset
+		target_position_offset = lerp(start_pos, end_pos, ads_progress)
+
+		var start_rot = weapon.normal_rotation_offset
+		var end_rot = weapon.aim_rotation_offset
+		target_rotation_offset = lerp(start_rot, end_rot, ads_progress)
+	else:
+		if aiming:
+			is_aiming = true
+			ads_progress = 1.0
+			current_fov = weapon.aim_fov
+			target_position_offset = weapon.aim_position_offset
+			target_rotation_offset = weapon.aim_rotation_offset
+		else:
+			is_aiming = false
+			ads_progress = 0.0
+			current_fov = weapon.normal_fov
+			target_position_offset = weapon.normal_position_offset
+			target_rotation_offset = weapon.normal_rotation_offset
+
+# ===== 6️⃣ 武器切换手感 =====
+func start_weapon_switch(new_index: int) -> void:
+	if is_switching or new_index == current_weapon_index or new_index < 0 or new_index >= weapons.size():
 		return
 	if is_reloading:
 		is_reloading = false
 		is_playing_reload = false
-	current_weapon_index = index
-	initialize_weapon(index)
-	print("切换到: ", get_current_weapon().name)
+		if reload_timer:
+			reload_timer.stop()
+			reload_timer.queue_free()
+			reload_timer = null
+
+	is_switching = true
+	switch_progress = 0.0
+	current_weapon_index = new_index
+	initialize_weapon(new_index)
+	weapon_pivot.position.y = -1.0
+
+func update_weapon_switch(delta: float) -> void:
+	if not is_switching:
+		return
+
+	switch_progress += delta / switch_duration
+	if switch_progress >= 1.0:
+		switch_progress = 1.0
+		is_switching = false
+		weapon_pivot.position = Vector3.ZERO
+		return
+
+	# 新武器从下方升起
+	var new_pos = lerp(Vector3(0, -1, 0), Vector3.ZERO, switch_progress)
+	weapon_pivot.position = new_pos
+
+	# 旋转动画
+	weapon_pivot.rotation.z = lerp(0.5, 0.0, switch_progress)
+
+# ===== 7️⃣ 射击模式系统与输入 =====
+func process_shoot_input() -> void:
+	var weapon = get_current_weapon()
+	var should_shoot = false
+
+	var mode = weapon.get("fire_mode", FireMode.FULL_AUTO)
+	match mode:
+		FireMode.SEMI_AUTO:
+			if Input.is_action_just_pressed("shoot"):
+				should_shoot = true
+
+		FireMode.BURST:
+			if Input.is_action_just_pressed("shoot") and burst_counter == 0:
+				burst_counter = weapon.get("burst_count", 3)
+				should_shoot = true
+			elif burst_counter > 0:
+				burst_timer += get_process_delta_time()
+				if burst_timer >= weapon.shoot_cooldown:
+					burst_counter -= 1
+					should_shoot = true
+					burst_timer = 0.0
+
+		FireMode.FULL_AUTO:
+			if Input.is_action_pressed("shoot"):
+				should_shoot = true
+
+	if should_shoot and can_shoot:
+		shoot.rpc()
+
+func toggle_fire_mode() -> void:
+	var weapon = get_current_weapon()
+	var modes = [FireMode.SEMI_AUTO, FireMode.BURST, FireMode.FULL_AUTO]
+	var current_index = modes.find(weapon.get("fire_mode", FireMode.FULL_AUTO))
+	current_index = (current_index + 1) % modes.size()
+	weapon.fire_mode = modes[current_index]
+	print("切换射击模式为: ", FireMode.keys()[weapon.fire_mode])
+
+# ===== 1️⃣ 后坐力模式系统 =====
+func apply_recoil() -> void:
+	var weapon = get_current_weapon()
+	shot_count += 1
+
+	# 前几发后坐力逐渐增大到峰值
+	recoil_peak = min(shot_count / 5.0, 1.0)
+
+	var pattern = weapon.get("recoil_pattern", [])
+	if pattern.size() > 0:
+		var index = (shot_count - 1) % pattern.size()
+		var offset = pattern[index] * recoil_peak
+
+		# If aiming, reduce recoil a bit for better feel
+		if is_aiming:
+			offset *= 0.6
+
+		recoil_pitch_offset -= offset.y
+		recoil_yaw_offset += offset.x
+	else:
+		# 降级方案：使用随机后坐力
+		var recoil_v = randf_range(weapon.recoil_vertical * 0.5, weapon.recoil_vertical) * recoil_multiplier
+		var recoil_h = randf_range(-weapon.recoil_horizontal, weapon.recoil_horizontal) * recoil_multiplier
+		if is_aiming:
+			recoil_v *= 0.6
+			recoil_h *= 0.6
+		recoil_pitch_offset -= recoil_v * recoil_peak
+		recoil_yaw_offset += recoil_h * recoil_peak
+
+func update_recoil_recovery(delta: float) -> void:
+	var is_shooting = false
+	if is_local_player:
+		var weapon = get_current_weapon()
+		var mode = weapon.get("fire_mode", FireMode.FULL_AUTO)
+		if mode == FireMode.BURST:
+			is_shooting = burst_counter > 0 or Input.is_action_pressed("shoot")
+		else:
+			is_shooting = Input.is_action_pressed("shoot")
+
+	if not is_shooting:
+		recovery_delay_timer += delta
+		var weapon = get_current_weapon()
+		var delay = weapon.get("recoil_recovery_delay", 0.0)
+
+		# 延迟后开始恢复
+		if recovery_delay_timer > delay:
+			# Stop count resets when recovery begins
+			shot_count = 0
+			var speed = weapon.recoil_recovery_speed
+			var progress = 1.0 - exp(-speed * delta * 0.5)
+			recoil_pitch_offset = lerp(recoil_pitch_offset, 0.0, progress)
+			recoil_yaw_offset = lerp(recoil_yaw_offset, 0.0, progress * 0.7)
+	else:
+		recovery_delay_timer = 0.0
+
+# ===== 5️⃣ 瞄准线系统 (激光指示) =====
+var aim_line: Line3D = null
+
+func setup_aim_line() -> void:
+	aim_line = Line3D.new()
+	aim_line.width = 0.02
+	aim_line.material = StandardMaterial3D.new()
+	aim_line.material.albedo_color = Color.GREEN
+	aim_line.material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	aim_line.visible = false
+	add_child(aim_line)
+
+func update_aim_line(delta: float) -> void:
+	if not aim_line:
+		return
+
+	if is_aiming and not is_dead:
+		var origin = weapon_pivot.global_position
+		var direction = -camera.global_transform.basis.z
+
+		var space_state = get_world_3d().direct_space_state
+		var query = PhysicsRayQueryParameters3D.create(origin, origin + direction * 100)
+		query.exclude = [self.get_rid()] # 排除自身
+		var result = space_state.intersect_ray(query)
+
+		var target = result.get("position", origin + direction * 100)
+		aim_line.points = [origin, target]
+		aim_line.visible = true
+	else:
+		aim_line.visible = false
+
+# ===== 8️⃣ 子弹拖尾效果 =====
+func create_bullet_trail(start: Vector3, end: Vector3) -> void:
+	if not is_local_player:
+		return
+
+	var trail = Line3D.new()
+	trail.width = 0.04
+	trail.material = StandardMaterial3D.new()
+	trail.material.albedo_color = Color(1.0, 0.8, 0.2, 0.8)
+	trail.material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	trail.material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	trail.points = [start, end]
+
+	get_tree().current_scene.add_child(trail)
+
+	var tween = create_tween()
+	tween.tween_property(trail.material, "albedo_color:a", 0.0, 0.1)
+	tween.tween_callback(trail.queue_free)
+
+# ===== 9️⃣ 撞击效果 =====
+func create_bullet_impact(position: Vector3, normal: Vector3) -> void:
+	if not is_local_player:
+		return
+
+	var impact = MeshInstance3D.new()
+	impact.mesh = SphereMesh.new()
+	(impact.mesh as SphereMesh).radius = 0.02
+	(impact.mesh as SphereMesh).height = 0.04
+	impact.position = position
+	impact.material_override = StandardMaterial3D.new()
+	impact.material_override.albedo_color = Color.YELLOW
+	impact.material_override.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	impact.material_override.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+
+	if normal.length_squared() > 0.001:
+		var target_pos = position + normal
+		if abs(normal.dot(Vector3.UP)) < 0.99:
+			impact.look_at(target_pos, Vector3.UP)
+		else:
+			impact.look_at(target_pos, Vector3.RIGHT)
+
+	get_tree().current_scene.add_child(impact)
+
+	var tween = create_tween()
+	tween.tween_property(impact, "scale", Vector3(2.0, 2.0, 2.0), 0.3)
+	tween.parallel().tween_property(impact.material_override, "albedo_color:a", 0.0, 0.3)
+	tween.tween_callback(impact.queue_free)
+
+# ===== 🔟 命中反馈 UI 节点绑定 =====
+func setup_feedback_ui() -> void:
+	if not is_local_player or not has_node("CanvasLayer"):
+		return
+	var canvas = $CanvasLayer
+
+	hit_marker_ui = HitMarkerUI.new()
+	hit_marker_ui.anchor_left = 0.5
+	hit_marker_ui.anchor_top = 0.5
+	hit_marker_ui.anchor_right = 0.5
+	hit_marker_ui.anchor_bottom = 0.5
+	hit_marker_ui.size = Vector2(100, 100)
+	hit_marker_ui.position = -hit_marker_ui.size * 0.5
+	canvas.add_child(hit_marker_ui)
+
+	damage_flash_ui = DamageFlashUI.new()
+	canvas.add_child(damage_flash_ui)
+
+func show_hit_marker() -> void:
+	hit_marker_timer = 0.2
+	if hit_marker_ui:
+		hit_marker_ui.timer = 0.2
+
+func show_damage_flash(intensity: float) -> void:
+	damage_flash_timer = 0.3
+	if damage_flash_ui:
+		damage_flash_ui.timer = 0.3
+		damage_flash_ui.intensity = intensity
+
+# ===== 命中反馈与闪烁动态 UI 类 =====
+class HitMarkerUI extends Control:
+	var timer: float = 0.0
+	func _process(delta: float) -> void:
+		if timer > 0:
+			timer -= delta
+			visible = true
+			queue_redraw()
+		else:
+			visible = false
+	func _draw() -> void:
+		var center = size * 0.5
+		var length = 8.0
+		var gap = 4.0
+		var color = Color(1, 1, 1, timer / 0.2)
+		draw_line(center - Vector2(gap + length, gap + length), center - Vector2(gap, gap), color, 2.0)
+		draw_line(center + Vector2(gap, -gap), center + Vector2(gap + length, -(gap + length)), color, 2.0)
+		draw_line(center + Vector2(-gap, gap), center + Vector2(-(gap + length), gap + length), color, 2.0)
+		draw_line(center + Vector2(gap, gap), center + Vector2(gap + length, gap + length), color, 2.0)
+
+class DamageFlashUI extends ColorRect:
+	var timer: float = 0.0
+	var intensity: float = 0.0
+	func _ready() -> void:
+		anchor_right = 1.0
+		anchor_bottom = 1.0
+		color = Color(1, 0, 0, 0)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+	func _process(delta: float) -> void:
+		if timer > 0:
+			timer -= delta
+			var alpha = (timer / 0.3) * 0.3 * intensity
+			color = Color(1, 0, 0, alpha)
+			visible = true
+		else:
+			visible = false
+
+# ===== 1️⃣1️⃣ 简单音效生成 =====
+func generate_impulse_sound(freq: float, duration: float) -> AudioStreamWAV:
+	var stream = AudioStreamWAV.new()
+	stream.mix_rate = 44100
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.stereo = false
+
+	var samples = int(stream.mix_rate * duration)
+	var data = PackedByteArray()
+	data.resize(samples * 2)
+
+	var decay = 1.0 / duration
+	var phase = 0.0
+
+	for i in range(samples):
+		phase += freq / stream.mix_rate
+		var value = sin(phase * TAU) * exp(-i * decay * 0.2)
+		value += randf_range(-0.15, 0.15) * (1.0 - float(i) / samples)
+		value = clamp(value, -1.0, 1.0)
+
+		var int_val = int(value * 32767)
+		data.encode_s16(i * 2, int_val)
+
+	stream.data = data
+	return stream
+
+func play_shot_sound() -> void:
+	if not is_local_player:
+		return
+
+	var audio = AudioStreamPlayer3D.new()
+	var weapon = get_current_weapon()
+	var freq = 300 + randi() % 200
+	audio.stream = generate_impulse_sound(freq, 0.05)
+	audio.max_distance = 50
+	audio.volume_db = -10
+	audio.global_position = weapon_pivot.global_position
+
+	get_tree().current_scene.add_child(audio)
+	audio.play()
+
+	await get_tree().create_timer(0.1).timeout
+	audio.queue_free()
