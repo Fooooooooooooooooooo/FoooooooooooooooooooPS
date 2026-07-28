@@ -406,9 +406,10 @@ func handle_movement(delta: float) -> void:
 	var input_dir: Vector2 = Input.get_vector("right", "left", "backward", "forward")
 	var direction: Vector3 = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
-	var target_speed: float = walk_speed
+	var weapon = get_current_weapon()
+	var target_speed: float = walk_speed * weapon.get("speed_multiplier", 1.0)
 	if is_aiming:
-		target_speed *= get_current_weapon().aim_speed_multiplier
+		target_speed *= weapon.aim_speed_multiplier
 
 	current_speed = target_speed
 
@@ -629,30 +630,32 @@ func shoot() -> void:
 		var cam_global: Transform3D = camera.global_transform
 		var origin: Vector3 = cam_global.origin
 		
-		# 使用全新的散布算法
-		var spread_angle: float = calculate_spread()
-		var rand_h: float = randf_range(-spread_angle, spread_angle)
-		var rand_v: float = randf_range(-spread_angle, spread_angle)
-		var local_dir: Vector3 = Vector3(rand_h, rand_v, -1.0).normalized()
-		var global_dir: Vector3 = cam_global.basis * local_dir
-		var end: Vector3 = origin + global_dir * weapon.shoot_range
+		# 支持散弹枪多弹丸射击 (Shotgun Pellets)
+		var pellet_count = weapon.get("pellet_count", 1)
+		for p in range(pellet_count):
+			var spread_angle: float = calculate_spread()
+			var rand_h: float = randf_range(-spread_angle, spread_angle)
+			var rand_v: float = randf_range(-spread_angle, spread_angle)
+			var local_dir: Vector3 = Vector3(rand_h, rand_v, -1.0).normalized()
+			var global_dir: Vector3 = cam_global.basis * local_dir
+			var end: Vector3 = origin + global_dir * weapon.shoot_range
 
-		var query := PhysicsRayQueryParameters3D.create(origin, end)
-		query.collision_mask = 1
-		query.exclude = [self.get_rid()]
-		var result: Dictionary = space_state.intersect_ray(query)
+			var query := PhysicsRayQueryParameters3D.create(origin, end)
+			query.collision_mask = 1
+			query.exclude = [self.get_rid()]
+			var result: Dictionary = space_state.intersect_ray(query)
 
-		# 子弹拖尾与击中效果 (authority/local)
-		if result:
-			var hit: Object = result.collider
-			create_bullet_trail(origin, result.position)
-			create_bullet_impact(result.position, result.normal)
-			if hit.is_in_group("players") and hit != self:
-				hit.take_damage.rpc_id(hit.get_multiplayer_authority(), weapon.damage, player_id)
-				if is_local_player:
-					show_hit_marker()
-		else:
-			create_bullet_trail(origin, end)
+			# 子弹拖尾与击中效果 (authority/local)
+			if result:
+				var hit: Object = result.collider
+				create_bullet_trail(origin, result.position)
+				create_bullet_impact(result.position, result.normal)
+				if hit.is_in_group("players") and hit != self:
+					hit.take_damage.rpc_id(hit.get_multiplayer_authority(), weapon.damage, player_id)
+					if is_local_player:
+						show_hit_marker()
+			else:
+				create_bullet_trail(origin, end)
 
 		# 应用后坐力模式
 		apply_recoil()
@@ -1068,7 +1071,7 @@ func process_shoot_input() -> void:
 
 		FireMode.BURST:
 			if Input.is_action_just_pressed("shoot") and burst_counter == 0:
-				burst_counter = weapon.get("burst_count", 3)
+				burst_counter = weapon.get("burst_count", 3) - 1 # 修复多射一发的 Off-by-one 逻辑漏洞
 				should_shoot = true
 			elif burst_counter > 0:
 				burst_timer += get_process_delta_time()
@@ -1524,6 +1527,7 @@ func generate_all_weapons() -> Array[Dictionary]:
 		w.side_aim_position_offset = Vector3(0, 0, 0)
 		w.side_aim_rotation_offset = Vector3(0, 0, 1)
 		w.aim_jitter_multiplier = 0.4
+		w.pellet_count = rw.get("pellets", 1) # 支持散弹枪多弹丸属性
 
 		# 自动生成 30 发高精度专业级后坐力 S-Curve 曲线数据 (使用 2.0 倍数使手感平滑可控)
 		var pattern: Array[Vector2] = []
