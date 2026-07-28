@@ -18,132 +18,7 @@ enum FireMode { SEMI_AUTO, BURST, FULL_AUTO }
 @export var lean_transition_speed: float = 12.0
 
 ## ===== 武器数据 =====
-var weapons: Array[Dictionary] = [
-	{
-		"name": "Vector",
-		"max_ammo": 90,
-		"max_reserve_ammo": -1,
-		"reload_time": 2.0,
-		"shoot_cooldown": 0.05,
-		"damage": 20.0,
-		"shoot_range": 100.0,
-		"recoil_vertical": 0.05,
-		"recoil_horizontal": 0.02,
-		"spread": 0.01,
-		"aim_spread_multiplier": 0.5,
-		"aim_fov": 60.0,
-		"normal_fov": 75,
-		"aim_sensitivity_multiplier": 0.5,
-		"aim_speed_multiplier": 0.7,
-		"aim_position_offset": Vector3(-0.005, -0.16, -0.2),
-		"aim_rotation_offset": Vector3(0.0, 0.0, 0.0),
-		"normal_position_offset": Vector3(0.323, -0.297, -0.488),
-		"normal_rotation_offset": Vector3(0.0, 0.0, 0.0),
-		"transition_speed": 10.0,
-		"recoil_recovery_speed": 8.0,
-		"side_aim_position_offset": Vector3(0, 0, 0),
-		"side_aim_rotation_offset": Vector3(0, 0, 1),
-		"aim_jitter_multiplier": 0.5,
-		"ads_time": 0.15,
-		"recoil_recovery_delay": 0.05,
-		"fire_mode": FireMode.FULL_AUTO,
-		"burst_count": 3,
-		"recoil_pattern": [
-			Vector2(0.0, 0.3),   # 第1发
-			Vector2(0.1, 0.5),   # 第2发
-			Vector2(0.2, 0.8),   # 第3发
-			Vector2(-0.1, 1.0),  # 第4发
-			Vector2(0.3, 1.3),   # 第5发
-			Vector2(-0.2, 1.5),  # 第6发
-			Vector2(0.1, 1.6),   # 第7发
-			Vector2(0.25, 1.7),  # 第8发
-			Vector2(-0.15, 1.8), # 第9发
-			Vector2(0.35, 1.9),  # 第10发
-			Vector2(0.0, 2.0),   # 第11发
-			Vector2(-0.2, 2.1),  # 第12发
-			Vector2(0.15, 2.1),  # 第13发
-			Vector2(0.3, 2.15),  # 第14发
-			Vector2(-0.1, 2.2),  # 第15发
-			Vector2(0.2, 2.2),   # 第16发
-			Vector2(-0.25, 2.2), # 第17发
-			Vector2(0.1, 2.2),   # 第18发
-			Vector2(0.35, 2.2),  # 第19发
-			Vector2(-0.15, 2.2), # 第20发
-			Vector2(0.0, 2.2),   # 第21发
-			Vector2(-0.2, 2.2),  # 第22发
-			Vector2(0.15, 2.2),  # 第23发
-			Vector2(0.3, 2.2),   # 第24发
-			Vector2(-0.1, 2.2),  # 第25发
-			Vector2(0.2, 2.2),   # 第26发
-			Vector2(-0.25, 2.2), # 第27发
-			Vector2(0.1, 2.2),   # 第28发
-			Vector2(0.35, 2.2),  # 第29发
-			Vector2(-0.15, 2.2)  # 第30发
-		]
-	},
-	{
-		"name": "Rifle",
-		"max_ammo": 30,
-		"max_reserve_ammo": -1,
-		"reload_time": 2.5,
-		"shoot_cooldown": 0.15,
-		"damage": 35.0,
-		"shoot_range": 150.0,
-		"recoil_vertical": 0.08,
-		"recoil_horizontal": 0.03,
-		"spread": 0.02,
-		"aim_spread_multiplier": 0.4,
-		"aim_fov": 55.0,
-		"normal_fov": 75,
-		"aim_sensitivity_multiplier": 0.4,
-		"aim_speed_multiplier": 0.5,
-		"aim_position_offset": Vector3(-0.005, -0.16, -0.2),
-		"aim_rotation_offset": Vector3(0.0, 0.0, 0.0),
-		"normal_position_offset": Vector3(0.323, -0.297, -0.488),
-		"normal_rotation_offset": Vector3(0.0, 0.0, 0.0),
-		"transition_speed": 10.0,
-		"recoil_recovery_speed": 6.0,
-		"side_aim_position_offset": Vector3(0, 0, 0),
-		"side_aim_rotation_offset": Vector3(0, 0, 1),
-		"aim_jitter_multiplier": 0.4,
-		"ads_time": 0.2,
-		"recoil_recovery_delay": 0.05,
-		"fire_mode": FireMode.SEMI_AUTO,
-		"burst_count": 3,
-		"recoil_pattern": [
-			Vector2(0.0, 0.5),   # 第1发
-			Vector2(0.15, 0.8),  # 第2发
-			Vector2(0.25, 1.2),  # 第3发
-			Vector2(-0.1, 1.5),  # 第4发
-			Vector2(-0.2, 1.8),  # 第5发
-			Vector2(0.1, 2.0),   # 第6发
-			Vector2(0.2, 2.2),   # 第7发
-			Vector2(0.3, 2.4),   # 第8发
-			Vector2(-0.05, 2.5), # 第9发
-			Vector2(-0.15, 2.6), # 第10发
-			Vector2(0.05, 2.7),  # 第11发
-			Vector2(0.15, 2.8),  # 第12发
-			Vector2(0.25, 2.9),  # 第13发
-			Vector2(-0.1, 3.0),  # 第14发
-			Vector2(-0.2, 3.1),  # 第15发
-			Vector2(0.1, 3.2),   # 第16发
-			Vector2(0.2, 3.2),   # 第17发
-			Vector2(0.3, 3.2),   # 第18发
-			Vector2(-0.05, 3.2), # 第19发
-			Vector2(-0.15, 3.2), # 第20发
-			Vector2(0.05, 3.2),  # 第21发
-			Vector2(0.15, 3.2),  # 第22发
-			Vector2(0.25, 3.2),  # 第23发
-			Vector2(-0.1, 3.2),  # 第24发
-			Vector2(-0.2, 3.2),  # 第25发
-			Vector2(0.1, 3.2),   # 第26发
-			Vector2(0.2, 3.2),   # 第27发
-			Vector2(0.3, 3.2),   # 第28发
-			Vector2(-0.05, 3.2), # 第29发
-			Vector2(-0.15, 3.2)  # 第30发
-		]
-	}
-]
+var weapons: Array[Dictionary] = []
 
 var current_weapon_index: int = 0
 
@@ -274,6 +149,9 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	# 动态程序化生成 53 把世界名枪
+	weapons = generate_all_weapons()
+
 	current_health = max_health
 	is_dead = false
 
@@ -692,6 +570,15 @@ func _input(event: InputEvent) -> void:
 			start_weapon_switch(0)
 		elif event.keycode == KEY_2:
 			start_weapon_switch(1)
+
+	# 鼠标滚轮切换武器 (循环切枪，轻松体验所有 53 把世界名枪！)
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			var next_index = (current_weapon_index - 1 + weapons.size()) % weapons.size()
+			start_weapon_switch(next_index)
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			var next_index = (current_weapon_index + 1) % weapons.size()
+			start_weapon_switch(next_index)
 
 
 # =========================================================================
@@ -1269,6 +1156,7 @@ func setup_aim_line() -> void:
 	aim_line.material = StandardMaterial3D.new()
 	aim_line.material.albedo_color = Color.GREEN
 	aim_line.material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	aim_line.top_level = true # 避免全局坐标产生双重坐标系变换 Bug
 	aim_line.visible = false
 	add_child(aim_line)
 
@@ -1448,3 +1336,208 @@ func play_shot_sound() -> void:
 
 	await get_tree().create_timer(0.1).timeout
 	audio.queue_free()
+
+# ===== 动态程序化生成 53 把枪械的数据系统 =====
+func generate_all_weapons() -> Array[Dictionary]:
+	var list: Array[Dictionary] = []
+
+	# 53把枪的原始核心属性配置 (手枪*10, 冲锋枪*10, 突击步枪*12, 精射*5, 狙击步枪*6, 霰弹枪*5, 机枪*5)
+	var raw_weapons = [
+		# === 1️⃣ 手枪 (Handguns) - 10 把 ===
+		{"name": "Glock 17", "cat": "Handgun", "mode": FireMode.SEMI_AUTO, "ammo": 17, "dmg": 22.0, "cool": 0.12, "v_rec": 0.04, "h_rec": 0.01},
+		{"name": "Glock 18C", "cat": "Handgun", "mode": FireMode.FULL_AUTO, "ammo": 20, "dmg": 19.0, "cool": 0.06, "v_rec": 0.05, "h_rec": 0.03},
+		{"name": "USP .45", "cat": "Handgun", "mode": FireMode.SEMI_AUTO, "ammo": 12, "dmg": 30.0, "cool": 0.15, "v_rec": 0.05, "h_rec": 0.015},
+		{"name": "Desert Eagle", "cat": "Handgun", "mode": FireMode.SEMI_AUTO, "ammo": 7, "dmg": 60.0, "cool": 0.4, "v_rec": 0.12, "h_rec": 0.06},
+		{"name": "P250", "cat": "Handgun", "mode": FireMode.SEMI_AUTO, "ammo": 13, "dmg": 24.0, "cool": 0.14, "v_rec": 0.045, "h_rec": 0.018},
+		{"name": "Five-seveN", "cat": "Handgun", "mode": FireMode.SEMI_AUTO, "ammo": 20, "dmg": 20.0, "cool": 0.11, "v_rec": 0.035, "h_rec": 0.01},
+		{"name": "M1911", "cat": "Handgun", "mode": FireMode.SEMI_AUTO, "ammo": 7, "dmg": 32.0, "cool": 0.16, "v_rec": 0.06, "h_rec": 0.02},
+		{"name": "CZ-75", "cat": "Handgun", "mode": FireMode.SEMI_AUTO, "ammo": 16, "dmg": 22.0, "cool": 0.12, "v_rec": 0.04, "h_rec": 0.015},
+		{"name": "FNX-45", "cat": "Handgun", "mode": FireMode.SEMI_AUTO, "ammo": 15, "dmg": 28.0, "cool": 0.15, "v_rec": 0.05, "h_rec": 0.02},
+		{"name": "Rex Zero 1", "cat": "Handgun", "mode": FireMode.SEMI_AUTO, "ammo": 17, "dmg": 22.0, "cool": 0.13, "v_rec": 0.038, "h_rec": 0.012},
+
+		# === 2️⃣ 冲锋枪 (SMGs) - 10 把 ===
+		{"name": "MP5", "cat": "SMG", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 23.0, "cool": 0.075, "v_rec": 0.03, "h_rec": 0.01},
+		{"name": "UMP45", "cat": "SMG", "mode": FireMode.FULL_AUTO, "ammo": 25, "dmg": 28.0, "cool": 0.1, "v_rec": 0.045, "h_rec": 0.015},
+		{"name": "Vector", "cat": "SMG", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 20.0, "cool": 0.05, "v_rec": 0.035, "h_rec": 0.025},
+		{"name": "P90", "cat": "SMG", "mode": FireMode.FULL_AUTO, "ammo": 50, "dmg": 21.0, "cool": 0.066, "v_rec": 0.028, "h_rec": 0.012},
+		{"name": "MP7", "cat": "SMG", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 21.0, "cool": 0.06, "v_rec": 0.032, "h_rec": 0.015},
+		{"name": "PP-19 Bizon", "cat": "SMG", "mode": FireMode.FULL_AUTO, "ammo": 64, "dmg": 22.0, "cool": 0.08, "v_rec": 0.035, "h_rec": 0.01},
+		{"name": "PP-2000", "cat": "SMG", "mode": FireMode.FULL_AUTO, "ammo": 20, "dmg": 23.0, "cool": 0.07, "v_rec": 0.038, "h_rec": 0.018},
+		{"name": "Scorpion EVO 3", "cat": "SMG", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 19.0, "cool": 0.052, "v_rec": 0.03, "h_rec": 0.012},
+		{"name": "MAC-10", "cat": "SMG", "mode": FireMode.FULL_AUTO, "ammo": 32, "dmg": 18.0, "cool": 0.048, "v_rec": 0.06, "h_rec": 0.04},
+		{"name": "MP9", "cat": "SMG", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 20.0, "cool": 0.06, "v_rec": 0.035, "h_rec": 0.02},
+
+		# === 3️⃣ 突击步枪 (Assault Rifles) - 12 把 ===
+		{"name": "AKM", "cat": "AR", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 38.0, "cool": 0.1, "v_rec": 0.07, "h_rec": 0.035},
+		{"name": "AK-74", "cat": "AR", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 30.0, "cool": 0.09, "v_rec": 0.05, "h_rec": 0.02},
+		{"name": "M4A1", "cat": "AR", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 31.0, "cool": 0.075, "v_rec": 0.045, "h_rec": 0.018},
+		{"name": "M16A4", "cat": "AR", "mode": FireMode.BURST, "ammo": 30, "dmg": 32.0, "cool": 0.075, "v_rec": 0.042, "h_rec": 0.015},
+		{"name": "AUG", "cat": "AR", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 32.0, "cool": 0.08, "v_rec": 0.045, "h_rec": 0.018},
+		{"name": "FAMAS", "cat": "AR", "mode": FireMode.BURST, "ammo": 25, "dmg": 28.0, "cool": 0.06, "v_rec": 0.048, "h_rec": 0.022},
+		{"name": "SCAR-H", "cat": "AR", "mode": FireMode.FULL_AUTO, "ammo": 20, "dmg": 42.0, "cool": 0.11, "v_rec": 0.08, "h_rec": 0.03},
+		{"name": "G36C", "cat": "AR", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 31.0, "cool": 0.08, "v_rec": 0.046, "h_rec": 0.02},
+		{"name": "Galil", "cat": "AR", "mode": FireMode.FULL_AUTO, "ammo": 35, "dmg": 32.0, "cool": 0.09, "v_rec": 0.055, "h_rec": 0.022},
+		{"name": "HK416", "cat": "AR", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 31.0, "cool": 0.072, "v_rec": 0.044, "h_rec": 0.016},
+		{"name": "AK-12", "cat": "AR", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 31.0, "cool": 0.085, "v_rec": 0.048, "h_rec": 0.018},
+		{"name": "CZ 805", "cat": "AR", "mode": FireMode.FULL_AUTO, "ammo": 30, "dmg": 31.0, "cool": 0.08, "v_rec": 0.045, "h_rec": 0.02},
+
+		# === 4️⃣ 战斗步枪 / 精确射手 (Battle / DMR) - 5 把 ===
+		{"name": "SVD", "cat": "DMR", "mode": FireMode.SEMI_AUTO, "ammo": 10, "dmg": 55.0, "cool": 0.25, "v_rec": 0.09, "h_rec": 0.03},
+		{"name": "MK14 EBR", "cat": "DMR", "mode": FireMode.SEMI_AUTO, "ammo": 20, "dmg": 48.0, "cool": 0.18, "v_rec": 0.085, "h_rec": 0.028},
+		{"name": "SR-25", "cat": "DMR", "mode": FireMode.SEMI_AUTO, "ammo": 10, "dmg": 58.0, "cool": 0.3, "v_rec": 0.095, "h_rec": 0.025},
+		{"name": "M39 EMR", "cat": "DMR", "mode": FireMode.SEMI_AUTO, "ammo": 10, "dmg": 55.0, "cool": 0.28, "v_rec": 0.09, "h_rec": 0.028},
+		{"name": "G3", "cat": "DMR", "mode": FireMode.SEMI_AUTO, "ammo": 20, "dmg": 45.0, "cool": 0.15, "v_rec": 0.08, "h_rec": 0.03},
+
+		# === 5️⃣ 狙击步枪 (Sniper Rifles) - 6 把 ===
+		{"name": "AWP", "cat": "Sniper", "mode": FireMode.SEMI_AUTO, "ammo": 5, "dmg": 100.0, "cool": 1.4, "v_rec": 0.2, "h_rec": 0.1},
+		{"name": "M24", "cat": "Sniper", "mode": FireMode.SEMI_AUTO, "ammo": 5, "dmg": 95.0, "cool": 1.2, "v_rec": 0.18, "h_rec": 0.08},
+		{"name": "Dragunov", "cat": "Sniper", "mode": FireMode.SEMI_AUTO, "ammo": 10, "dmg": 70.0, "cool": 0.4, "v_rec": 0.12, "h_rec": 0.05},
+		{"name": "M40A3", "cat": "Sniper", "mode": FireMode.SEMI_AUTO, "ammo": 5, "dmg": 95.0, "cool": 1.3, "v_rec": 0.18, "h_rec": 0.08},
+		{"name": "T-5000", "cat": "Sniper", "mode": FireMode.SEMI_AUTO, "ammo": 5, "dmg": 98.0, "cool": 1.3, "v_rec": 0.19, "h_rec": 0.09},
+		{"name": "Barrett M82", "cat": "Sniper", "mode": FireMode.SEMI_AUTO, "ammo": 10, "dmg": 150.0, "cool": 0.8, "v_rec": 0.25, "h_rec": 0.15},
+
+		# === 6️⃣ 霰弹枪 (Shotguns) - 5 把 ===
+		{"name": "M870", "cat": "Shotgun", "mode": FireMode.SEMI_AUTO, "ammo": 8, "dmg": 80.0, "cool": 0.8, "v_rec": 0.15, "h_rec": 0.08},
+		{"name": "SPAS-12", "cat": "Shotgun", "mode": FireMode.SEMI_AUTO, "ammo": 8, "dmg": 75.0, "cool": 0.5, "v_rec": 0.12, "h_rec": 0.06},
+		{"name": "AA-12", "cat": "Shotgun", "mode": FireMode.FULL_AUTO, "ammo": 20, "dmg": 45.0, "cool": 0.2, "v_rec": 0.1, "h_rec": 0.05},
+		{"name": "KS-23", "cat": "Shotgun", "mode": FireMode.SEMI_AUTO, "ammo": 3, "dmg": 120.0, "cool": 1.1, "v_rec": 0.22, "h_rec": 0.12},
+		{"name": "Origin-12", "cat": "Shotgun", "mode": FireMode.FULL_AUTO, "ammo": 12, "dmg": 50.0, "cool": 0.22, "v_rec": 0.11, "h_rec": 0.06},
+
+		# === 7️⃣ 轻机枪 / 通用机枪 (LMG / MMG) - 5 把 ===
+		{"name": "M249 SAW", "cat": "LMG", "mode": FireMode.FULL_AUTO, "ammo": 100, "dmg": 28.0, "cool": 0.075, "v_rec": 0.05, "h_rec": 0.02},
+		{"name": "PKM", "cat": "LMG", "mode": FireMode.FULL_AUTO, "ammo": 100, "dmg": 40.0, "cool": 0.092, "v_rec": 0.07, "h_rec": 0.035},
+		{"name": "RPD", "cat": "LMG", "mode": FireMode.FULL_AUTO, "ammo": 100, "dmg": 34.0, "cool": 0.09, "v_rec": 0.06, "h_rec": 0.03},
+		{"name": "M250", "cat": "LMG", "mode": FireMode.FULL_AUTO, "ammo": 100, "dmg": 38.0, "cool": 0.085, "v_rec": 0.048, "h_rec": 0.02},
+		{"name": "MG3", "cat": "LMG", "mode": FireMode.FULL_AUTO, "ammo": 100, "dmg": 26.0, "cool": 0.05, "v_rec": 0.065, "h_rec": 0.03}
+	]
+
+	for rw in raw_weapons:
+		var w: Dictionary = {}
+		w.name = rw.name
+		w.max_ammo = rw.ammo
+		w.max_reserve_ammo = -1 # 无限备弹
+		w.shoot_cooldown = rw.cool
+		w.damage = rw.dmg
+		w.recoil_vertical = rw.v_rec
+		w.recoil_horizontal = rw.h_rec
+		w.fire_mode = rw.mode
+		w.burst_count = 3
+
+		var cat = rw.cat
+		if cat == "Handgun":
+			w.reload_time = 1.6
+			w.shoot_range = 50.0
+			w.spread = 0.015
+			w.aim_spread_multiplier = 0.4
+			w.aim_fov = 65.0
+			w.normal_fov = 75.0
+			w.aim_sensitivity_multiplier = 0.6
+			w.aim_speed_multiplier = 0.9
+			w.ads_time = 0.12
+			w.recoil_recovery_speed = 10.0
+			w.recoil_recovery_delay = 0.03
+			w.aim_position_offset = Vector3(-0.005, -0.16, -0.18)
+		elif cat == "SMG":
+			w.reload_time = 2.0
+			w.shoot_range = 80.0
+			w.spread = 0.02
+			w.aim_spread_multiplier = 0.45
+			w.aim_fov = 60.0
+			w.normal_fov = 75.0
+			w.aim_sensitivity_multiplier = 0.5
+			w.aim_speed_multiplier = 0.8
+			w.ads_time = 0.15
+			w.recoil_recovery_speed = 8.5
+			w.recoil_recovery_delay = 0.05
+			w.aim_position_offset = Vector3(-0.005, -0.16, -0.2)
+		elif cat == "AR":
+			w.reload_time = 2.6
+			w.shoot_range = 150.0
+			w.spread = 0.012
+			w.aim_spread_multiplier = 0.35
+			w.aim_fov = 55.0
+			w.normal_fov = 75.0
+			w.aim_sensitivity_multiplier = 0.45
+			w.aim_speed_multiplier = 0.65
+			w.ads_time = 0.22
+			w.recoil_recovery_speed = 7.0
+			w.recoil_recovery_delay = 0.06
+			w.aim_position_offset = Vector3(-0.005, -0.16, -0.22)
+		elif cat == "DMR":
+			w.reload_time = 3.0
+			w.shoot_range = 250.0
+			w.spread = 0.008
+			w.aim_spread_multiplier = 0.2
+			w.aim_fov = 40.0
+			w.normal_fov = 75.0
+			w.aim_sensitivity_multiplier = 0.3
+			w.aim_speed_multiplier = 0.5
+			w.ads_time = 0.28
+			w.recoil_recovery_speed = 6.0
+			w.recoil_recovery_delay = 0.08
+			w.aim_position_offset = Vector3(-0.005, -0.16, -0.25)
+		elif cat == "Sniper":
+			w.reload_time = 3.5
+			w.shoot_range = 400.0
+			w.spread = 0.004
+			w.aim_spread_multiplier = 0.05
+			w.aim_fov = 25.0
+			w.normal_fov = 75.0
+			w.aim_sensitivity_multiplier = 0.2
+			w.aim_speed_multiplier = 0.4
+			w.ads_time = 0.35
+			w.recoil_recovery_speed = 4.0
+			w.recoil_recovery_delay = 0.15
+			w.aim_position_offset = Vector3(-0.005, -0.16, -0.28)
+		elif cat == "Shotgun":
+			w.reload_time = 3.0
+			w.shoot_range = 35.0
+			w.spread = 0.06
+			w.aim_spread_multiplier = 0.7
+			w.aim_fov = 65.0
+			w.normal_fov = 75.0
+			w.aim_sensitivity_multiplier = 0.6
+			w.aim_speed_multiplier = 0.75
+			w.ads_time = 0.2
+			w.recoil_recovery_speed = 6.5
+			w.recoil_recovery_delay = 0.08
+			w.aim_position_offset = Vector3(-0.005, -0.16, -0.2)
+		elif cat == "LMG":
+			w.reload_time = 4.5
+			w.shoot_range = 180.0
+			w.spread = 0.025
+			w.aim_spread_multiplier = 0.4
+			w.aim_fov = 50.0
+			w.normal_fov = 75.0
+			w.aim_sensitivity_multiplier = 0.4
+			w.aim_speed_multiplier = 0.5
+			w.ads_time = 0.3
+			w.recoil_recovery_speed = 5.0
+			w.recoil_recovery_delay = 0.08
+			w.aim_position_offset = Vector3(-0.005, -0.16, -0.24)
+
+		# 通用初始化配置参数
+		w.normal_position_offset = Vector3(0.323, -0.297, -0.488)
+		w.normal_rotation_offset = Vector3(0.0, 0.0, 0.0)
+		w.aim_rotation_offset = Vector3(0.0, 0.0, 0.0)
+		w.transition_speed = 10.0
+		w.side_aim_position_offset = Vector3(0, 0, 0)
+		w.side_aim_rotation_offset = Vector3(0, 0, 1)
+		w.aim_jitter_multiplier = 0.4
+
+		# 自动生成 30 发高精度专业级后坐力 S-Curve 曲线数据 (使用 2.0 倍数使手感平滑可控)
+		var pattern: Array[Vector2] = []
+		var base_v = rw.v_rec * 2.0
+		var base_h = rw.h_rec * 2.0
+		for i in range(30):
+			var shot = i + 1
+			var v = base_v * (1.0 + shot * 0.03)
+			var h = sin(shot * 0.5) * base_h * 1.5
+			if shot > 10:
+				h += base_h * 0.5
+			pattern.append(Vector2(h, v))
+		w.recoil_pattern = pattern
+
+		list.append(w)
+
+	return list
