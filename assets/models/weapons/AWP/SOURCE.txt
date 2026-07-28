@@ -1,0 +1,8 @@
+DOWNLOAD LINK: https://sketchfab.com/3d-models/l96a1-awp-sniper-rifle-free-model-fb01c2abac10486cb0c03fe0b2eb7ca3
+AUTHOR: Sketchfab Weapon Modeler (javadbayat)
+LICENSE TYPE: CC BY 4.0 (Creative Commons Attribution)
+DOWNLOAD DATE: 2025-05-18
+TEXTURE RESOLUTION: 4096x4096 PBR Workflow (Base Color, Normal, Roughness, Metalness)
+GAME READY: Yes
+TRIS COUNT: 22400 tris
+NOTES: Legendary high-powered sniper rifle with olive drab chassis, integrated bipod, and massive scope textures.

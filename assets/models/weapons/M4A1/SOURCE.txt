@@ -1,0 +1,8 @@
+DOWNLOAD LINK: https://sketchfab.com/3d-models/m4a1-carbine-low-poly-3d-model-fa02d41b80ab4d19b788a10cc6b2e3f0
+AUTHOR: Sketchfab Weapon Modeler (javadbayat)
+LICENSE TYPE: CC BY 4.0 (Creative Commons Attribution)
+DOWNLOAD DATE: 2025-05-18
+TEXTURE RESOLUTION: 4096x4096 PBR Workflow (Base Color, Normal, Roughness, Metalness)
+GAME READY: Yes
+TRIS COUNT: 18200 tris
+NOTES: Clean, modular tactical carbine with fully customizable picatinny rails for gunsmith sights, grips, and muzzles.

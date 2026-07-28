@@ -1,0 +1,8 @@
+DOWNLOAD LINK: https://sketchfab.com/3d-models/heckler-koch-mp5a3-submachine-gun-8b17b2b0ac304561b0c03fe0b2eb7ca2
+AUTHOR: Sketchfab Weapon Modeler (javadbayat)
+LICENSE TYPE: CC BY 4.0 (Creative Commons Attribution)
+DOWNLOAD DATE: 2025-05-18
+TEXTURE RESOLUTION: 2048x2048 PBR Workflow (Base Color, Normal, Roughness, Metalness)
+GAME READY: Yes
+TRIS COUNT: 11200 tris
+NOTES: Compact submachine gun with high-fidelity metal textures and retractable stock.

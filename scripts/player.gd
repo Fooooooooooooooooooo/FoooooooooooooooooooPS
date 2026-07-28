@@ -22,6 +22,142 @@ var weapons: Array[Dictionary] = []
 
 var current_weapon_index: int = 0
 
+# ===== 武器改装 (Gunsmith) 系统数据 =====
+var weapon_customizations: Dictionary = {}
+var active_customized_weapon: Dictionary = {}
+
+const ATTACHMENTS = {
+	"att_red_dot": {
+		"name": "Aimpoint T2 (红点)",
+		"category": "sight",
+		"desc": "红点瞄准镜，大幅提高开镜速度，轻微减小扩散",
+		"modifiers": {
+			"ads_time": 0.8,
+			"spread": 0.9,
+			"aim_fov": 0.95
+		},
+		"color": Color(0.1, 0.4, 1.0)
+	},
+	"att_eotech": {
+		"name": "EOTech (全息)",
+		"category": "sight",
+		"desc": "全息衍射瞄具，提高瞄准速度，减小扩散",
+		"modifiers": {
+			"ads_time": 0.9,
+			"spread": 0.85,
+			"aim_fov": 0.9
+		},
+		"color": Color(0.1, 0.8, 1.0)
+	},
+	"att_acog": {
+		"name": "ACOG (4倍镜)",
+		"category": "sight",
+		"desc": "4倍战术高倍镜，增加瞄准距离，但开镜速度略微减慢",
+		"modifiers": {
+			"ads_time": 1.2,
+			"spread": 0.7,
+			"aim_fov": 0.6
+		},
+		"color": Color(0.8, 0.1, 1.0)
+	},
+	"att_suppressor": {
+		"name": "Suppressor (消音器)",
+		"category": "muzzle",
+		"desc": "战术枪口消音器，大幅减小垂直/水平后坐力，轻微降伤害",
+		"modifiers": {
+			"damage": 0.95,
+			"recoil_vertical": 0.85,
+			"recoil_horizontal": 0.85
+		},
+		"color": Color(0.2, 0.2, 0.2)
+	},
+	"att_compensator": {
+		"name": "Compensator (补偿器)",
+		"category": "muzzle",
+		"desc": "枪口补偿器，有效改善后坐力表现，降低扩散值",
+		"modifiers": {
+			"recoil_vertical": 0.8,
+			"recoil_horizontal": 0.8,
+			"spread": 0.95
+		},
+		"color": Color(0.2, 0.9, 0.2)
+	},
+	"att_brake": {
+		"name": "Muzzle Brake (制退器)",
+		"category": "muzzle",
+		"desc": "高效枪口制退器，极大减小垂直和水平后坐力，扩散略增",
+		"modifiers": {
+			"recoil_vertical": 0.75,
+			"recoil_horizontal": 0.75,
+			"spread": 1.05
+		},
+		"color": Color(0.0, 0.7, 0.0)
+	},
+	"att_vertical_grip": {
+		"name": "Vertical Grip (垂直握把)",
+		"category": "grip",
+		"desc": "垂直前握把，有效抑制枪口垂直上跳，改善散布",
+		"modifiers": {
+			"recoil_vertical": 0.85,
+			"spread": 0.9
+		},
+		"color": Color(1.0, 0.1, 0.2)
+	},
+	"att_angled_grip": {
+		"name": "Angled Grip (三角握把)",
+		"category": "grip",
+		"desc": "三角斜向握把，加快换弹动作，轻微改善整体后坐力",
+		"modifiers": {
+			"reload_time": 0.9,
+			"recoil_vertical": 0.95,
+			"recoil_horizontal": 0.95
+		},
+		"color": Color(1.0, 0.5, 0.4)
+	},
+	"att_extended_mag": {
+		"name": "Extended Mag (扩容弹匣)",
+		"category": "magazine",
+		"desc": "高容量扩容弹匣，增加50%载弹量，换弹时间略微变长",
+		"modifiers": {
+			"max_ammo": 1.5,
+			"reload_time": 1.2
+		},
+		"color": Color(1.0, 0.8, 0.1)
+	},
+	"att_fast_mag": {
+		"name": "Fast Mag (快速弹匣)",
+		"category": "magazine",
+		"desc": "轻量化战术快速弹匣，大幅缩短换弹用时，载弹量略降",
+		"modifiers": {
+			"reload_time": 0.7,
+			"max_ammo": 0.9
+		},
+		"color": Color(0.9, 0.9, 0.1)
+	},
+	"att_lightweight_stock": {
+		"name": "Light Stock (轻量枪托)",
+		"category": "stock",
+		"desc": "轻量化折叠枪托，提高携枪移速，后坐控制略微下降",
+		"modifiers": {
+			"speed_multiplier": 1.05,
+			"recoil_vertical": 1.1,
+			"recoil_horizontal": 1.1
+		},
+		"color": Color(0.9, 0.6, 0.4)
+	},
+	"att_heavy_stock": {
+		"name": "Heavy Stock (重型枪托)",
+		"category": "stock",
+		"desc": "配重稳定枪托，大幅降低垂直与水平后坐力，移速略微受限",
+		"modifiers": {
+			"recoil_vertical": 0.8,
+			"recoil_horizontal": 0.8,
+			"speed_multiplier": 0.95
+		},
+		"color": Color(0.5, 0.3, 0.1)
+	}
+}
+
 ## ===== 新增变量 (枪械与手感系统) =====
 var is_crouching: bool = false
 var is_sprinting: bool = false
@@ -49,6 +185,7 @@ var damage_flash_timer: float = 0.0
 
 var hit_marker_ui = null
 var damage_flash_ui = null
+var gunsmith_ui = null
 
 ## ===== 节点引用 =====
 @onready var camera: Camera3D = $Camera3D
@@ -196,6 +333,8 @@ func _ready() -> void:
 
 
 func get_current_weapon() -> Dictionary:
+	if not active_customized_weapon.is_empty():
+		return active_customized_weapon
 	return weapons[current_weapon_index]
 
 
@@ -203,7 +342,20 @@ func initialize_weapon(index: int) -> void:
 	if index < 0 or index >= weapons.size():
 		return
 
-	var weapon: Dictionary = weapons[index]
+	var base_weapon = weapons[index]
+	if not weapon_customizations.has(base_weapon.name):
+		weapon_customizations[base_weapon.name] = {
+			"sight": null,
+			"muzzle": null,
+			"grip": null,
+			"magazine": null,
+			"stock": null
+		}
+
+	# 重新计算并应用改装属性
+	recalculate_current_weapon_customization()
+
+	var weapon = get_current_weapon()
 	current_ammo = weapon.max_ammo
 	reserve_ammo = weapon.max_reserve_ammo
 
@@ -233,6 +385,9 @@ func initialize_weapon(index: int) -> void:
 	current_side_rotation = Vector3.ZERO
 	target_lean = 0.0
 	current_lean = 0.0
+
+	# 渲染附件 3D 几何视觉模型 (Procedures)
+	update_attachment_visuals()
 
 	apply_weapon_offset()
 	play_weapon_animation("idle")
@@ -546,6 +701,13 @@ func _input(event: InputEvent) -> void:
 	if not is_local_player or is_dead:
 		return
 
+	# 若改装系统 UI 正处于开启激活状态，则拦截所有除 Tab/I 之外的常规角色控制及切枪输入
+	if gunsmith_ui and gunsmith_ui.visible:
+		if event is InputEventKey and event.pressed and (event.keycode == KEY_I or event.keycode == KEY_TAB):
+			pass # 允许触发退出改装面板
+		else:
+			return # 拦截其他一切常规操作按键
+
 	if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 		var sensitivity: float = mouse_sensitivity
 		if is_aiming:
@@ -580,6 +742,14 @@ func _input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			var next_index = (current_weapon_index + 1) % weapons.size()
 			start_weapon_switch(next_index)
+
+	# 战术改装系统快捷键 Tab 或 I (一键呼出/关闭改装面板)
+	if event is InputEventKey and event.pressed and (event.keycode == KEY_I or event.keycode == KEY_TAB):
+		if gunsmith_ui:
+			if gunsmith_ui.visible:
+				gunsmith_ui.toggle_ui()
+			else:
+				gunsmith_ui.open_gunsmith(self)
 
 
 # =========================================================================
@@ -1236,6 +1406,9 @@ func setup_feedback_ui() -> void:
 		return
 	var canvas = $CanvasLayer
 
+	gunsmith_ui = GunsmithUI.new()
+	canvas.add_child(gunsmith_ui)
+
 	hit_marker_ui = HitMarkerUI.new()
 	hit_marker_ui.anchor_left = 0.5
 	hit_marker_ui.anchor_top = 0.5
@@ -1545,3 +1718,108 @@ func generate_all_weapons() -> Array[Dictionary]:
 		list.append(w)
 
 	return list
+
+# ===== 武器改装 (Gunsmith) 核心计算与渲染函数 =====
+func get_modified_weapon(weapon_base: Dictionary, attachments_config: Dictionary) -> Dictionary:
+	var result = weapon_base.duplicate(true)
+	var modifiers = {}
+
+	# 收集所有装备附件的修正乘数
+	for slot in attachments_config:
+		var att_id = attachments_config[slot]
+		if att_id and ATTACHMENTS.has(att_id):
+			var att_data = ATTACHMENTS[att_id]
+			if att_data.has("modifiers"):
+				for key in att_data.modifiers:
+					if not modifiers.has(key):
+						modifiers[key] = 1.0
+					modifiers[key] *= att_data.modifiers[key]
+
+	# 将修正乘数应用到枪械的基础属性上
+	for key in modifiers:
+		if result.has(key):
+			if key == "max_ammo":
+				result[key] = int(round(result[key] * modifiers[key]))
+			else:
+				result[key] *= modifiers[key]
+
+	return result
+
+func recalculate_current_weapon_customization() -> void:
+	var base_weapon = weapons[current_weapon_index]
+	var current_attachments = weapon_customizations.get(base_weapon.name, {})
+
+	# 缓存改装后的活跃武器数据
+	active_customized_weapon = get_modified_weapon(base_weapon, current_attachments)
+
+	# 动态重载当前的后坐力、换弹时间等属性
+	var weapon = get_current_weapon()
+	current_ammo = min(current_ammo, weapon.max_ammo)
+
+var attachment_holder: Node3D = null
+
+func setup_attachment_holder() -> void:
+	if not weapon_pivot:
+		return
+	if weapon_pivot.has_node("AttachmentHolder"):
+		attachment_holder = weapon_pivot.get_node("AttachmentHolder")
+	else:
+		attachment_holder = Node3D.new()
+		attachment_holder.name = "AttachmentHolder"
+		weapon_pivot.add_child(attachment_holder)
+
+func update_attachment_visuals() -> void:
+	if not attachment_holder:
+		setup_attachment_holder()
+	if not attachment_holder:
+		return
+
+	# 清理旧的附件视觉节点
+	for child in attachment_holder.get_children():
+		child.queue_free()
+
+	var base_weapon = weapons[current_weapon_index]
+	var current_attachments = weapon_customizations.get(base_weapon.name, {})
+
+	for slot in current_attachments:
+		var att_id = current_attachments[slot]
+		if not att_id:
+			continue
+		var att_data = ATTACHMENTS[att_id]
+		var col = att_data.get("color", Color.WHITE)
+
+		var mesh_instance = MeshInstance3D.new()
+		mesh_instance.material_override = StandardMaterial3D.new()
+		mesh_instance.material_override.albedo_color = col
+		mesh_instance.material_override.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+		if slot == "sight":
+			var m = BoxMesh.new()
+			m.size = Vector3(0.035, 0.035, 0.06)
+			mesh_instance.mesh = m
+			mesh_instance.position = Vector3(0.0, 0.1, -0.15)
+		elif slot == "muzzle":
+			var m = CylinderMesh.new()
+			m.top_radius = 0.016
+			m.bottom_radius = 0.016
+			m.height = 0.14
+			mesh_instance.mesh = m
+			mesh_instance.position = Vector3(0.0, 0.03, -0.6)
+			mesh_instance.rotation.x = deg_to_rad(90.0) # 横向指向前
+		elif slot == "grip":
+			var m = BoxMesh.new()
+			m.size = Vector3(0.02, 0.08, 0.03)
+			mesh_instance.mesh = m
+			mesh_instance.position = Vector3(0.0, -0.08, -0.32)
+		elif slot == "magazine":
+			var m = BoxMesh.new()
+			m.size = Vector3(0.025, 0.14, 0.04)
+			mesh_instance.mesh = m
+			mesh_instance.position = Vector3(0.0, -0.12, -0.12)
+		elif slot == "stock":
+			var m = BoxMesh.new()
+			m.size = Vector3(0.025, 0.08, 0.14)
+			mesh_instance.mesh = m
+			mesh_instance.position = Vector3(0.0, 0.01, 0.18)
+
+		attachment_holder.add_child(mesh_instance)

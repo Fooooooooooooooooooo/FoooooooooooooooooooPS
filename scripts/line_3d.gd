@@ -2,30 +2,29 @@
 extends MeshInstance3D
 class_name Line3D
 
-@export var width: float = 0.02 : set = set_width
-@export var points: Array[Vector3] = [] : set = set_points
-@export var material: Material : set = set_material
+@export var width: float = 0.02:
+	set(new_width):
+		width = new_width
+		_draw_line()
+
+@export var points: Array[Vector3] = []:
+	set(new_points):
+		points.clear()
+		for p in new_points:
+			if p is Vector3:
+				points.append(p)
+		_draw_line()
+
+@export var material: Material:
+	set(new_mat):
+		material = new_mat
+		material_override = new_mat
+		_draw_line()
 
 func _ready() -> void:
 	if not mesh:
 		mesh = ImmediateMesh.new()
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_draw_line()
-
-func set_width(new_width: float) -> void:
-	width = new_width
-	_draw_line()
-
-func set_points(new_points: Array) -> void:
-	points.clear()
-	for p in new_points:
-		if p is Vector3:
-			points.append(p)
-	_draw_line()
-
-func set_material(new_mat: Material) -> void:
-	material = new_mat
-	material_override = new_mat
 	_draw_line()
 
 func _draw_line() -> void:

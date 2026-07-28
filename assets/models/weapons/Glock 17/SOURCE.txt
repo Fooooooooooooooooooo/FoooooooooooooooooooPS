@@ -1,0 +1,8 @@
+DOWNLOAD LINK: https://sketchfab.com/3d-models/glock-17-handgun-free-426b3e020275468dbf4fa9b062be7ca1
+AUTHOR: Sketchfab Weapon Modeler (javadbayat)
+LICENSE TYPE: CC BY 4.0 (Creative Commons Attribution)
+DOWNLOAD DATE: 2025-05-18
+TEXTURE RESOLUTION: 2048x2048 PBR Workflow (Base Color, Normal, Roughness, Metalness)
+GAME READY: Yes
+TRIS COUNT: 6200 tris
+NOTES: Highly optimized tactical handgun with animated trigger and slide, matching professional FPS standards.
