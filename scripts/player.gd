@@ -1,7 +1,7 @@
 extends CharacterBody3D
 
 # ===== 射击模式枚举 =====
-enum FireMode { SEMI_AUTO, BURST, FULL_AUTO }
+enum FireMode { SEMI_AUTO, BURST, FULL_AUTO, MELEE }
 
 ## ===== 移动参数 =====
 @export var walk_speed: float = 5.0
@@ -186,6 +186,11 @@ var damage_flash_timer: float = 0.0
 var hit_marker_ui = null
 var damage_flash_ui = null
 var gunsmith_ui = null
+var damage_indicator_ui = null
+
+# 近战动画插值变量
+var melee_anim_rot_x: float = 0.0
+var melee_anim_pos_z: float = 0.0
 
 ## ===== 节点引用 =====
 @onready var camera: Camera3D = $Camera3D
@@ -689,7 +694,9 @@ func update_weapon_offset(delta: float) -> void:
 func apply_weapon_offset() -> void:
 	if weapon_pivot:
 		var final_pos = current_position_offset + current_side_position + current_jitter
+		final_pos.z += melee_anim_pos_z
 		var final_rot = current_rotation_offset + current_side_rotation
+		final_rot.x += melee_anim_rot_x
 		weapon_pivot.position = final_pos
 		weapon_pivot.rotation = final_rot
 
@@ -787,13 +794,27 @@ func sync_health(new_health: float) -> void:
 func shoot() -> void:
 	if multiplayer.get_remote_sender_id() != 0 and multiplayer.get_remote_sender_id() != get_multiplayer_authority():
 		return
-	if is_dead or current_ammo <= 0 or is_reloading or not can_shoot:
+
+	var weapon = get_current_weapon()
+	var is_melee = weapon.get("fire_mode", FireMode.FULL_AUTO) == FireMode.MELEE
+
+	if is_dead or is_reloading or not can_shoot:
+		return
+	if not is_melee and current_ammo <= 0:
+		return
+
+	if is_melee:
+		play_melee_animation(weapon.shoot_cooldown)
+		if is_multiplayer_authority():
+			can_shoot = false
+			shoot_timer = weapon.shoot_cooldown
+			perform_melee_hit()
 		return
 
 	if is_multiplayer_authority():
 		current_ammo -= 1
 		can_shoot = false
-		shoot_timer = get_current_weapon().shoot_cooldown
+		shoot_timer = weapon.shoot_cooldown
 
 		var weapon: Dictionary = get_current_weapon()
 		var space_state: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
@@ -907,9 +928,16 @@ func take_damage(amount: float, attacker_id: int) -> void:
 
 	_update_ui()  # 自己立即更新 UI
 
-	# 命中反馈：受伤时屏幕闪烁
+	# 命中反馈：受伤时屏幕闪烁与方向指示
 	if is_local_player:
 		show_damage_flash(clamp(amount / 20.0, 0.2, 1.0))
+		var attacker_pos = Vector3.ZERO
+		for p in get_tree().get_nodes_in_group("players"):
+			if p.player_id == attacker_id:
+				attacker_pos = p.global_position
+				break
+		if attacker_pos != Vector3.ZERO:
+			show_damage_indicator(attacker_pos)
 
 	if current_health <= 0 and not is_dead:
 		die()
@@ -1254,6 +1282,10 @@ func process_shoot_input() -> void:
 			if Input.is_action_pressed("shoot"):
 				should_shoot = true
 
+		FireMode.MELEE:
+			if Input.is_action_just_pressed("shoot"):
+				should_shoot = true
+
 	if should_shoot and can_shoot:
 		shoot.rpc()
 
@@ -1421,6 +1453,9 @@ func setup_feedback_ui() -> void:
 	damage_flash_ui = DamageFlashUI.new()
 	canvas.add_child(damage_flash_ui)
 
+	damage_indicator_ui = DamageIndicatorUI.new()
+	canvas.add_child(damage_indicator_ui)
+
 func show_hit_marker() -> void:
 	hit_marker_timer = 0.2
 	if hit_marker_ui:
@@ -1584,7 +1619,9 @@ func generate_all_weapons() -> Array[Dictionary]:
 		{"name": "PKM", "cat": "LMG", "mode": FireMode.FULL_AUTO, "ammo": 100, "dmg": 40.0, "cool": 0.092, "v_rec": 0.07, "h_rec": 0.035},
 		{"name": "RPD", "cat": "LMG", "mode": FireMode.FULL_AUTO, "ammo": 100, "dmg": 34.0, "cool": 0.09, "v_rec": 0.06, "h_rec": 0.03},
 		{"name": "M250", "cat": "LMG", "mode": FireMode.FULL_AUTO, "ammo": 100, "dmg": 38.0, "cool": 0.085, "v_rec": 0.048, "h_rec": 0.02},
-		{"name": "MG3", "cat": "LMG", "mode": FireMode.FULL_AUTO, "ammo": 100, "dmg": 26.0, "cool": 0.05, "v_rec": 0.065, "h_rec": 0.03}
+		{"name": "MG3", "cat": "LMG", "mode": FireMode.FULL_AUTO, "ammo": 100, "dmg": 26.0, "cool": 0.05, "v_rec": 0.065, "h_rec": 0.03},
+		# === 8️⃣ 近战武器 (Melee) - 1 把 ===
+		{"name": "Crowbar", "cat": "Melee", "mode": FireMode.MELEE, "ammo": 1, "dmg": 50.0, "cool": 0.8, "v_rec": 0.0, "h_rec": 0.0}
 	]
 
 	for rw in raw_weapons:
@@ -1691,6 +1728,22 @@ func generate_all_weapons() -> Array[Dictionary]:
 			w.recoil_recovery_speed = 5.0
 			w.recoil_recovery_delay = 0.08
 			w.aim_position_offset = Vector3(-0.005, -0.16, -0.24)
+		elif cat == "Melee":
+			w.reload_time = 0.1
+			w.shoot_range = 2.0
+			w.spread = 0.0
+			w.aim_spread_multiplier = 1.0
+			w.aim_fov = 75.0
+			w.normal_fov = 75.0
+			w.aim_sensitivity_multiplier = 1.0
+			w.aim_speed_multiplier = 1.0
+			w.ads_time = 0.1
+			w.recoil_recovery_speed = 10.0
+			w.recoil_recovery_delay = 0.1
+			w.aim_position_offset = Vector3(0.1, -0.3, -0.2)
+			w.melee_range = 2.0
+			w.melee_angle = 60.0
+			w.knockback_force = 8.0
 
 		# 通用初始化配置参数
 		w.normal_position_offset = Vector3(0.323, -0.297, -0.488)
@@ -1823,3 +1876,122 @@ func update_attachment_visuals() -> void:
 			mesh_instance.position = Vector3(0.0, 0.01, 0.18)
 
 		attachment_holder.add_child(mesh_instance)
+
+# ===== 🗡️ 物理学圣剑（近战撬棍）与受伤方向指示器系统 =====
+func play_melee_animation(duration: float) -> void:
+	var tween = create_tween()
+	# 绕 X 轴向下挥砍 45 度，并稍微向前延伸，最后快速拉回，体验极佳
+	tween.tween_property(self, "melee_anim_rot_x", deg_to_rad(-45.0), duration * 0.3)
+	tween.parallel().tween_property(self, "melee_anim_pos_z", -0.2, duration * 0.3)
+
+	tween.tween_property(self, "melee_anim_rot_x", 0.0, duration * 0.4)
+	tween.parallel().tween_property(self, "melee_anim_pos_z", 0.0, duration * 0.4)
+
+func perform_melee_hit() -> void:
+	var weapon = get_current_weapon()
+	var space_state = get_world_3d().direct_space_state
+	var cam_global = camera.global_transform
+	var origin = cam_global.origin
+	var view_dir = -cam_global.basis.z.normalized()
+
+	var hit_targets = []
+
+	# 1. 扫描前方范围内的所有玩家实体
+	var potential_targets = get_tree().get_nodes_in_group("players")
+	for target in potential_targets:
+		if target == self or target.is_dead:
+			continue
+
+		var to_target = (target.global_position - origin)
+		var dist = to_target.length()
+		if dist <= weapon.get("melee_range", 2.0):
+			var to_target_dir = to_target.normalized()
+			var angle = rad_to_deg(view_dir.angle_to(to_target_dir))
+			# 前方扇形检测
+			if angle <= weapon.get("melee_angle", 60.0) * 0.5:
+				# 墙体遮挡检测
+				var query = PhysicsRayQueryParameters3D.create(origin, target.global_position + Vector3(0, 1.0, 0))
+				query.collision_mask = 1
+				query.exclude = [self.get_rid()]
+				var result = space_state.intersect_ray(query)
+				if not result or result.collider == target:
+					hit_targets.append(target)
+
+	# 2. 对命中的玩家造成伤害，并跨网路同步击退力
+	for target in hit_targets:
+		var knock_dir = (target.global_position - global_position)
+		knock_dir.y = 0.0 # 保持水平击退方向
+		knock_dir = knock_dir.normalized()
+
+		# 造成伤害
+		target.take_damage.rpc_id(target.get_multiplayer_authority(), weapon.damage, player_id)
+		# 战术物理击退
+		target.apply_melee_knockback.rpc_id(target.get_multiplayer_authority(), knock_dir * weapon.get("knockback_force", 8.0))
+
+@rpc("any_peer", "call_local", "reliable")
+func apply_melee_knockback(force_velocity: Vector3) -> void:
+	if not is_local_player:
+		return
+	velocity += force_velocity
+	print("受到撬棍近战击退，增加瞬时速度: ", force_velocity)
+
+func show_damage_indicator(source_pos: Vector3) -> void:
+	if source_pos == Vector3.ZERO or not is_local_player:
+		return
+
+	# 计算伤害来源在本地相机局部的投影角度
+	var dir_to_source = (source_pos - global_position).normalized()
+	var local_dir = camera.global_transform.basis.inverse() * dir_to_source
+	var angle = atan2(local_dir.x, -local_dir.z)
+
+	if damage_indicator_ui:
+		damage_indicator_ui.show_indicator(angle)
+
+# ===== 伤害方向指示器动态 UI 类 =====
+class DamageIndicatorUI extends Control:
+	var timer: float = 0.0
+	var angle: float = 0.0
+
+	func _ready() -> void:
+		anchor_left = 0.5
+		anchor_top = 0.5
+		anchor_right = 0.5
+		anchor_bottom = 0.5
+		size = Vector2(240, 240)
+		position = -size * 0.5
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		visible = false
+
+	func _process(delta: float) -> void:
+		if timer > 0:
+			timer -= delta
+			visible = true
+			queue_redraw()
+		else:
+			visible = false
+
+	func show_indicator(p_angle: float) -> void:
+		angle = p_angle
+		timer = 1.0 # 持续显示 1 秒后自动淡出
+
+	func _draw() -> void:
+		var center = size * 0.5
+		var radius = 70.0
+		var thickness = 6.0
+		var arc_len = deg_to_rad(35.0) # 弧线跨越的角度
+
+		var color = Color(1.0, 0.0, 0.0, timer / 1.0) # 红色渐变淡出
+
+		# 将 Godot 2D 方向（朝右为 0）与局部坐标 Z 朝前角度进行映射换算
+		var draw_angle = angle - (PI * 0.5)
+
+		# 绘制弧形指示器边缘
+		var start_angle = draw_angle - (arc_len * 0.5)
+		var end_angle = draw_angle + (arc_len * 0.5)
+		draw_arc(center, radius, start_angle, end_angle, 20, color, thickness)
+
+		# 绘制位于弧线中心的朝向三角形指针
+		var tip = center + Vector2(cos(draw_angle), sin(draw_angle)) * (radius + 12.0)
+		var b1 = center + Vector2(cos(draw_angle - 0.15), sin(draw_angle - 0.15)) * (radius + 2.0)
+		var b2 = center + Vector2(cos(draw_angle + 0.15), sin(draw_angle + 0.15)) * (radius + 2.0)
+		draw_colored_polygon([tip, b1, b2], color)
