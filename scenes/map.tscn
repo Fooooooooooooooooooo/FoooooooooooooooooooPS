@@ -30,6 +30,19 @@ sky_material = SubResource("PanoramaSkyMaterial_abi3o")
 [sub_resource type="Environment" id="Environment_wvhbo"]
 background_mode = 2
 sky = SubResource("Sky_ifow5")
+tonemap_mode = 2
+tonemap_exposure = 1.05
+tonemap_white = 1.0
+ssr_enabled = true
+ssao_enabled = true
+ssil_enabled = true
+glow_enabled = true
+glow_intensity = 0.6
+glow_bloom = 0.15
+glow_blend_mode = 1
+fog_enabled = true
+fog_light_color = Color(0.08, 0.08, 0.1)
+fog_density = 0.015
 
 [node name="map" unique_id=1321610786 instance=ExtResource("1_ivhtw")]
 script = ExtResource("1_gldc4")

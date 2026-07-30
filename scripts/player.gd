@@ -188,9 +188,11 @@ var damage_flash_ui = null
 var gunsmith_ui = null
 var damage_indicator_ui = null
 
-# 近战动画插值变量
+# 近战及角色模型/动画变量
 var melee_anim_rot_x: float = 0.0
 var melee_anim_pos_z: float = 0.0
+var character_model: Node3D = null
+var character_animator: AnimationPlayer = null
 
 ## ===== 节点引用 =====
 @onready var camera: Camera3D = $Camera3D
@@ -304,6 +306,9 @@ func _ready() -> void:
 		set_process_input(false)
 	else:
 		camera.current = true
+
+	# 初始化 UAL1 3D 第三人称角色模型与动画
+	setup_character_model()
 
 	initialize_weapon(current_weapon_index)
 	player_yaw = rotation.y
@@ -524,6 +529,9 @@ func _physics_process(delta: float) -> void:
 				last_sent_pitch = pitch
 				rpc("update_transform", pos, rot, pitch)
 
+	# 每帧更新第三人称 UAL1 骨骼动画播放 (所有人同步)
+	update_character_animation()
+
 
 func handle_movement(delta: float) -> void:
 	if is_dead:
@@ -694,9 +702,7 @@ func update_weapon_offset(delta: float) -> void:
 func apply_weapon_offset() -> void:
 	if weapon_pivot:
 		var final_pos = current_position_offset + current_side_position + current_jitter
-		final_pos.z += melee_anim_pos_z
 		var final_rot = current_rotation_offset + current_side_rotation
-		final_rot.x += melee_anim_rot_x
 		weapon_pivot.position = final_pos
 		weapon_pivot.rotation = final_rot
 
@@ -842,7 +848,19 @@ func shoot() -> void:
 				create_bullet_trail(origin, result.position)
 				create_bullet_impact(result.position, result.normal)
 				if hit.is_in_group("players") and hit != self:
-					hit.take_damage.rpc_id(hit.get_multiplayer_authority(), weapon.damage, player_id)
+					# 计算击中高度（相对目标足底）以判定不同身体部位伤害
+					var relative_hit_y = result.position.y - hit.global_position.y
+					var final_damage = weapon.damage
+					if relative_hit_y > 1.4:
+						final_damage *= 3.0 # 爆头 3 倍伤害！
+						print("💥 HEADSHOT! 爆头命中玩家 ", hit.player_id, "，最终伤害: ", final_damage)
+					elif relative_hit_y < 0.6:
+						final_damage *= 0.6 # 四肢伤害减免 40%
+						print("🦵 击中四肢，最终伤害减免为: ", final_damage)
+					else:
+						print("👕 击中躯干，基础伤害: ", final_damage)
+
+					hit.take_damage.rpc_id(hit.get_multiplayer_authority(), final_damage, player_id)
 					if is_local_player:
 						show_hit_marker()
 			else:
@@ -1877,6 +1895,73 @@ func update_attachment_visuals() -> void:
 
 		attachment_holder.add_child(mesh_instance)
 
+# ===== 👤 3D 角色模型与骨骼动画 (UAL1 Standard Soldier) =====
+func setup_character_model() -> void:
+	# 隐藏原始的简易胶囊体占位网格
+	if has_node("MeshInstance3D"):
+		$MeshInstance3D.visible = false
+
+	# 加载 UAL1 Standard 3D 角色模型并实例化
+	var model_scene = load("res://assets/UAL1_Standard.glb")
+	if model_scene:
+		character_model = model_scene.instantiate()
+		character_model.name = "CharacterModel"
+		character_model.position = Vector3(0.0, 0.0, 0.0) # 贴合父节点胶囊体底部
+		character_model.rotation.y = deg_to_rad(180.0)    # 对齐 Godot 的 -Z 朝向前向
+		add_child(character_model)
+
+		# 本地客户端第一人称视角下隐藏自己的第三人称身体，防止遮挡相机
+		if is_local_player:
+			character_model.visible = false
+
+func update_character_animation() -> void:
+	if not character_model:
+		return
+
+	# 自动寻找模型内的 AnimationPlayer
+	if not character_animator:
+		character_animator = character_model.find_child("AnimationPlayer") as AnimationPlayer
+		if not character_animator:
+			for child in character_model.get_children():
+				if child is AnimationPlayer:
+					character_animator = child
+					break
+
+	if not character_animator:
+		return
+
+	# 根据玩家的各种移动/滑铲/浮空状态动态切换播放动画
+	var current_anim = "idle"
+	if is_dead:
+		current_anim = "death"
+	elif is_sliding:
+		current_anim = "slide"
+	elif not is_on_floor():
+		current_anim = "jump"
+	elif velocity.length() > 0.5:
+		if is_sprinting:
+			current_anim = "run"
+		else:
+			current_anim = "walk"
+
+	# 如果有动画库，安全检查并平滑播放
+	if character_animator.has_animation(current_anim):
+		if character_animator.current_animation != current_anim:
+			character_animator.play(current_anim)
+	else:
+		# 模糊名模糊匹配动画库中的动画名称进行安全兼容播放
+		var list = character_animator.get_animation_list()
+		if list.size() > 0:
+			var fallback_anim = ""
+			for anim in list:
+				if current_anim in anim.to_lower():
+					fallback_anim = anim
+					break
+			if fallback_anim == "":
+				fallback_anim = list[0]
+			if character_animator.current_animation != fallback_anim:
+				character_animator.play(fallback_anim)
+
 # ===== 🗡️ 物理学圣剑（近战撬棍）与受伤方向指示器系统 =====
 func play_melee_animation(duration: float) -> void:
 	var tween = create_tween()
@@ -1907,9 +1992,9 @@ func perform_melee_hit() -> void:
 		if dist <= weapon.get("melee_range", 2.0):
 			var to_target_dir = to_target.normalized()
 			var angle = rad_to_deg(view_dir.angle_to(to_target_dir))
-			# 前方扇形检测
+			# 前方固定 60 度扇形检测
 			if angle <= weapon.get("melee_angle", 60.0) * 0.5:
-				# 墙体遮挡检测
+				# 射线检测阻挡
 				var query = PhysicsRayQueryParameters3D.create(origin, target.global_position + Vector3(0, 1.0, 0))
 				query.collision_mask = 1
 				query.exclude = [self.get_rid()]
@@ -1917,14 +2002,16 @@ func perform_melee_hit() -> void:
 				if not result or result.collider == target:
 					hit_targets.append(target)
 
-	# 2. 对命中的玩家造成伤害，并跨网路同步击退力
+	# 2. 对命中的玩家造成伤害，并跨网络同步击退力
 	for target in hit_targets:
 		var knock_dir = (target.global_position - global_position)
 		knock_dir.y = 0.0 # 保持水平击退方向
 		knock_dir = knock_dir.normalized()
 
-		# 造成伤害
-		target.take_damage.rpc_id(target.get_multiplayer_authority(), weapon.damage, player_id)
+		# 不同部位造成伤害
+		var relative_hit_y = 1.0 # 默认击中躯干高度
+		var final_damage = weapon.damage
+		target.take_damage.rpc_id(target.get_multiplayer_authority(), final_damage, player_id)
 		# 战术物理击退
 		target.apply_melee_knockback.rpc_id(target.get_multiplayer_authority(), knock_dir * weapon.get("knockback_force", 8.0))
 

@@ -7,12 +7,9 @@ class_name Line3D
 		width = new_width
 		_draw_line()
 
-@export var points: Array[Vector3] = []:
+@export var points: Array = []:
 	set(new_points):
-		points.clear()
-		for p in new_points:
-			if p is Vector3:
-				points.append(p)
+		points = new_points
 		_draw_line()
 
 @export var material: Material:
@@ -38,6 +35,11 @@ func _draw_line() -> void:
 	for i in range(points.size() - 1):
 		var p1 = points[i]
 		var p2 = points[i+1]
+
+		# Ensure we only process Vector3 elements safely
+		if not (p1 is Vector3) or not (p2 is Vector3):
+			continue
+
 		var dir = (p2 - p1).normalized()
 
 		# Find an orthogonal vector to define thickness
